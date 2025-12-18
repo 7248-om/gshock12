@@ -52,3 +52,4 @@ This is a **frontend-only prototype** focused on user experience, storytelling, 
 ```bash
 npm install
 npm run dev
+```
