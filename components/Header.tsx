@@ -51,7 +51,7 @@ const Header: React.FC = () => {
       name: 'Franchise',
       links: [
         { label: 'The Opportunity', path: '/' },
-        { label: 'Partner With Us', path: '/' },
+        { label: 'Partner With Us', path: '/franchise' },
       ],
     },
     {
@@ -98,6 +98,13 @@ const Header: React.FC = () => {
             >
               Visit Café
             </button>
+            <button
+  onClick={() => closeAndNavigate('/login')}
+  className="hidden md:flex items-center uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
+>
+  Login
+</button>
+
 
             <button
               onClick={() => closeAndNavigate('/menu')}
