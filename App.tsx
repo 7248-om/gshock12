@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
-
+import Workshop from './pages/Workshop';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
 import Login from './pages/Login';
@@ -20,6 +20,7 @@ const App = () => {
             <Route path="/menu" element={<Menu />} />
             <Route path="/login" element={<Login />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/workshop" element={<Workshop/>}/>
           </Routes>
         </main>
 
