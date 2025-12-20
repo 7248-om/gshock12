@@ -1,176 +1,331 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useLayoutEffect, useRef } from 'react';
+import { WORKSHOPS, FAQS } from '../pages/constants';
+import { WorkshopType } from '../pages/types';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-// ---------------------
-// Workshop Type
-// ---------------------
-type WorkshopType = {
-  id: number;
-  title: string;
-  description: string;
-  date: string; // YYYY-MM-DD
-  time: string;
-  price: number; // 0 = free
+gsap.registerPlugin(ScrollTrigger);
+
+const WorkshopCard: React.FC<{ workshop: WorkshopType }> = ({ workshop }) => {
+  return (
+    <div className="workshop-card group flex flex-col h-full bg-white border border-onyx/5 hover:border-gold/30 transition-all duration-500 overflow-hidden shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] opacity-0 translate-y-8">
+      <div className="relative aspect-[4/5] overflow-hidden">
+        <img 
+          src={workshop.image} 
+          alt={workshop.title} 
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[20%] group-hover:grayscale-0"
+        />
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+            <span className="bg-onyx text-cream text-[9px] font-bold uppercase tracking-widest px-3 py-1.5">
+                {workshop.category}
+            </span>
+            {workshop.price === 0 && (
+                 <span className="bg-gold text-onyx text-[9px] font-bold uppercase tracking-widest px-3 py-1.5">
+                    Community
+                </span>
+            )}
+        </div>
+      </div>
+      
+      <div className="p-8 flex-grow flex flex-col">
+        <div className="flex justify-between items-start mb-4">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-onyx/40">
+                {workshop.date.replace(/-/g, '.')}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gold">
+                {workshop.price === 0 ? 'FREE' : `₹${workshop.price}`}
+            </span>
+        </div>
+        
+        <h3 className="text-2xl font-serif font-black mb-3 group-hover:text-gold transition-colors duration-300 uppercase leading-tight tracking-tight">
+          {workshop.title}
+        </h3>
+        <p className="text-sm text-onyx/60 font-light leading-relaxed mb-6 line-clamp-3">
+          {workshop.description}
+        </p>
+        
+        <div className="mt-auto space-y-4">
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.1em] text-onyx/80">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {workshop.time}
+            </div>
+            <button className="w-full bg-onyx text-cream text-[10px] font-bold uppercase tracking-[0.2em] py-4 hover:bg-gold transition-colors duration-300">
+              Reserve Spot
+            </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-// ---------------------
-// Workshop Data (20 workshops)
-// ---------------------
-const workshops: WorkshopType[] = [
-  { id: 1, title: "Latte Art Basics", description: "Learn milk frothing & latte art.", date: "2025-12-21", time: "16:00 – 18:00", price: 799 },
-  { id: 2, title: "Espresso Masterclass", description: "Espresso extraction techniques.", date: "2025-12-23", time: "17:00 – 19:00", price: 999 },
-  { id: 3, title: "Pour-Over Techniques", description: "Master pour-over brewing.", date: "2025-12-26", time: "15:00 – 17:00", price: 899 },
-  { id: 4, title: "Cold Brew Workshop", description: "Make delicious cold brew.", date: "2025-12-28", time: "14:00 – 16:00", price: 0 },
-  { id: 5, title: "Coffee Tasting", description: "Taste and differentiate coffee beans.", date: "2026-01-02", time: "17:00 – 19:00", price: 499 },
-  { id: 6, title: "Home Brewing Tips", description: "Brew coffee at home like a pro.", date: "2026-01-05", time: "16:00 – 18:00", price: 0 },
-  { id: 7, title: "French Press Secrets", description: "Perfect French press coffee.", date: "2026-01-08", time: "15:00 – 17:00", price: 699 },
-  { id: 8, title: "Cupping Session", description: "Learn professional coffee cupping.", date: "2026-01-10", time: "16:00 – 18:00", price: 0 },
-  { id: 9, title: "Latte Art Advanced", description: "Advanced latte art techniques.", date: "2026-01-12", time: "17:00 – 19:00", price: 1099 },
-  { id: 10, title: "Aeropress Techniques", description: "Master Aeropress brewing.", date: "2026-01-15", time: "14:00 – 16:00", price: 599 },
-  { id: 11, title: "Coffee & Dessert Pairing", description: "Pair coffee with desserts.", date: "2026-01-18", time: "15:00 – 17:00", price: 0 },
-  { id: 12, title: "Advanced Espresso", description: "Professional espresso skills.", date: "2026-01-21", time: "16:00 – 18:00", price: 1299 },
-  { id: 13, title: "Brewing Science", description: "Learn coffee chemistry & extraction.", date: "2026-01-25", time: "17:00 – 19:00", price: 0 },
-  { id: 14, title: "Coffee Latte Workshop", description: "Classic latte brewing.", date: "2026-01-28", time: "15:00 – 17:00", price: 799 },
-  { id: 15, title: "Coffee Art for Kids", description: "Fun coffee-inspired art for kids.", date: "2026-02-01", time: "14:00 – 15:30", price: 0 },
-  { id: 16, title: "Coffee Roasting 101", description: "Basics of roasting coffee beans.", date: "2026-02-05", time: "16:00 – 18:00", price: 899 },
-  { id: 17, title: "Barista Skills", description: "Become a pro barista.", date: "2026-02-10", time: "17:00 – 19:00", price: 1199 },
-  { id: 18, title: "Coffee & Chocolate Pairing", description: "Pair coffee with chocolates.", date: "2026-02-14", time: "15:00 – 17:00", price: 0 },
-  { id: 19, title: "Iced Coffee Creations", description: "Make creative iced coffee drinks.", date: "2026-02-20", time: "14:00 – 16:00", price: 599 },
-  { id: 20, title: "Coffee History & Culture", description: "Learn coffee origins & culture.", date: "2026-02-28", time: "16:00 – 18:00", price: 0 },
-];
+const FaqItem: React.FC<{ faq: { question: string; answer: string } }> = ({ faq }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-// ---------------------
-// FAQs
-// ---------------------
-const faqs = [
-  {
-    question: "Are workshops free or paid?",
-    answer: "Both options are possible. Some workshops may be free, others may be paid events.",
-  },
-  {
-    question: "Do frequent customers get priority access?",
-    answer: "Yes, this can be implemented as an optional feature: Priority access for frequent customers, notifications for upcoming workshops, and optional customer tiers based on order history.",
-  },
-];
+  return (
+    <div className="border-b border-onyx/10 last:border-0 py-6">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex justify-between items-center text-left group"
+      >
+        <h3 className="text-lg font-serif italic text-onyx group-hover:text-gold transition-colors">
+          {faq.question}
+        </h3>
+        <span className={`transform transition-transform duration-300 text-gold text-xl ${isOpen ? 'rotate-45' : ''}`}>
+          +
+        </span>
+      </button>
+      <div className={`mt-4 overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+        <p className="text-sm text-onyx/60 font-light leading-relaxed">
+          {faq.answer}
+        </p>
+      </div>
+    </div>
+  );
+};
 
-// ---------------------
-// Component
-// ---------------------
 const Workshop: React.FC = () => {
   const [filterType, setFilterType] = useState<"all" | "free" | "paid">("all");
   const [upcomingDays, setUpcomingDays] = useState<number | "all">("all");
+  const [activeCategory, setActiveCategory] = useState<"all" | "Foundations" | "Expert" | "Breather">("all");
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const horizontalSectionRef = useRef<HTMLDivElement>(null);
+  const horizontalTrackRef = useRef<HTMLDivElement>(null);
 
-  // Filter workshops
-  const filteredWorkshops = workshops.filter((w) => {
-    const today = new Date();
-    const workshopDate = new Date(w.date);
+  const filteredWorkshops = useMemo(() => {
+    return WORKSHOPS.filter((w) => {
+      const today = new Date('2025-12-01');
+      const workshopDate = new Date(w.date);
 
-    // Filter by type
-    if (filterType === "free" && w.price !== 0) return false;
-    if (filterType === "paid" && w.price === 0) return false;
+      if (filterType === "free" && w.price !== 0) return false;
+      if (filterType === "paid" && w.price === 0) return false;
 
-    // Filter by upcoming X days
-    if (upcomingDays !== "all") {
-      const diffDays = (workshopDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-      if (diffDays < 0 || diffDays > upcomingDays) return false;
-    }
+      if (upcomingDays !== "all") {
+        const diffDays = (workshopDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+        if (diffDays < 0 || diffDays > upcomingDays) return false;
+      }
 
-    return true;
-  });
+      if (activeCategory !== "all" && w.category !== activeCategory) return false;
+
+      return true;
+    });
+  }, [filterType, upcomingDays, activeCategory]);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      // Hero reveal
+      const heroTl = gsap.timeline({ defaults: { ease: "power4.out" } });
+      heroTl.from(".hero-tag", { y: 20, opacity: 0, duration: 1 })
+            .from(".hero-title-line", { y: 100, opacity: 0, stagger: 0.1, duration: 1.2 }, "-=0.8")
+            .from(".hero-desc", { opacity: 0, y: 20, duration: 1 }, "-=1");
+
+      // Filter bar stagger
+      gsap.from(".filter-btn", {
+        y: 20,
+        opacity: 0,
+        stagger: 0.05,
+        duration: 0.8,
+        delay: 0.5,
+        ease: "power3.out"
+      });
+
+      // Section titles reveal
+      const animatedHeaders = document.querySelectorAll(".animate-header");
+      animatedHeaders.forEach(header => {
+        gsap.from(header, {
+          scrollTrigger: {
+            trigger: header,
+            start: "top 85%",
+          },
+          y: 40,
+          opacity: 0,
+          duration: 1,
+          ease: "power3.out"
+        });
+      });
+
+      // Workshop cards stagger on change
+      gsap.to(".workshop-card", {
+        y: 0,
+        opacity: 1,
+        stagger: 0.1,
+        duration: 1,
+        ease: "power3.out",
+        overwrite: "auto"
+      });
+
+      // Horizontal Scroll Highlights
+      if (horizontalTrackRef.current && horizontalSectionRef.current) {
+        const track = horizontalTrackRef.current;
+        const section = horizontalSectionRef.current;
+        
+        const scrollWidth = track.scrollWidth;
+        const windowWidth = window.innerWidth;
+        const xTranslate = -(scrollWidth - windowWidth + (windowWidth * 0.1)); // 10% padding
+
+        gsap.to(track, {
+          x: xTranslate,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: () => `+=${scrollWidth}`,
+            scrub: 1,
+            pin: true,
+            invalidateOnRefresh: true,
+          }
+        });
+      }
+
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, [filteredWorkshops]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Section 1: Intro */}
-      <section className="text-center py-16 px-4 bg-yellow-50">
-        <h1 className="text-5xl font-bold mb-4">Robusta Coffee Workshops</h1>
-        <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-          Join our interactive coffee workshops to learn from expert baristas. Whether free or paid, every workshop is a chance to explore coffee culture and brewing techniques.
-        </p>
-      </section>
-
-      {/* Section 2: Images */}
-      <section className="py-16 px-4">
-        <h2 className="text-3xl font-semibold text-center mb-8">Workshop Highlights</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <img
-  key={i}
-  src={`/images/Robusta${i + 1}.jpg`}
-  alt={`Workshop ${i + 1}`}
-  className="w-full h-64 object-cover rounded-xl shadow-lg"
-/>
-          ))}
+    <div ref={containerRef} className="min-h-screen bg-cream overflow-x-hidden">
+      {/* Hero Section */}
+      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=2070" 
+            className="w-full h-full object-cover grayscale opacity-30 brightness-50 scale-110"
+            alt="Hero background"
+          />
+          <div className="absolute inset-0 bg-onyx/20"></div>
+        </div>
+        
+        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+            <span className="hero-tag text-[10px] font-bold uppercase tracking-[0.5em] text-gold mb-8 block">
+                The Lab Curriculum
+            </span>
+            <h1 className="text-6xl md:text-8xl font-serif font-black tracking-tighter uppercase text-onyx mb-8 leading-[0.9]">
+                <span className="hero-title-line block">Brewing</span>
+                <span className="hero-title-line italic font-light text-gold lowercase block">Sophistication</span>
+            </h1>
+            <p className="hero-desc text-lg text-onyx/70 font-light max-w-xl mx-auto leading-relaxed">
+                Join our sensory scientists and master baristas in exploring the technical limits of coffee extraction, flavor profiling, and latte art.
+            </p>
         </div>
       </section>
 
-      {/* Section 3: Filters */}
-      <section className="py-12 px-4 bg-white">
-        <h2 className="text-3xl font-semibold text-center mb-8">Upcoming Workshops</h2>
-        <div className="flex flex-col sm:flex-row justify-center gap-6 mb-8">
-          <div>
-            <label className="mr-2 font-medium">Type:</label>
-            <select
-              className="border rounded px-2 py-1"
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as "all" | "free" | "paid")}
-            >
-              <option value="all">All</option>
-              <option value="free">Free</option>
-              <option value="paid">Paid</option>
-            </select>
-          </div>
-          <div>
-            <label className="mr-2 font-medium">Upcoming:</label>
-            <select
-              className="border rounded px-2 py-1"
-              value={upcomingDays}
-              onChange={(e) => setUpcomingDays(e.target.value === "all" ? "all" : parseInt(e.target.value))}
-            >
-              <option value="all">All</option>
-              <option value="7">Next 7 days</option>
-              <option value="14">Next 14 days</option>
-              <option value="30">Next 30 days</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Section 3: Workshops */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredWorkshops.length > 0 ? (
-            filteredWorkshops.map((w) => (
-              <div
-                key={w.id}
-                className="bg-gray-50 rounded-xl shadow-md p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300"
-              >
-                <div>
-                  <h3 className="text-xl font-bold mb-2">{w.title}</h3>
-                  <p className="text-gray-700 mb-2">{w.description}</p>
-                  <p className="text-gray-500 text-sm"><strong>Date:</strong> {w.date}</p>
-                  <p className="text-gray-500 text-sm"><strong>Time:</strong> {w.time}</p>
-                  <p className={`mt-2 font-medium ${w.price === 0 ? "text-green-600" : "text-gray-900"}`}>
-                    {w.price === 0 ? "Free" : `₹${w.price}`}
-                  </p>
-                </div>
-                <button className="mt-4 bg-yellow-700 text-white px-4 py-2 rounded hover:bg-yellow-800 transition">
-                  Book Workshop
+      {/* Filter Toolbar */}
+      <section className="sticky top-[80px] z-40 bg-cream/80 backdrop-blur-md border-y border-onyx/5">
+        <div className="max-w-[1600px] mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+             {['all', 'Foundations', 'Expert', 'Breather'].map((cat) => (
+                <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat as any)}
+                    className={`filter-btn text-[9px] font-bold uppercase tracking-[0.2em] px-6 py-2.5 rounded-full border transition-all duration-300 ${
+                        activeCategory === cat ? 'bg-onyx text-cream border-onyx shadow-lg' : 'bg-transparent text-onyx border-onyx/10 hover:border-gold hover:text-gold'
+                    }`}
+                >
+                    {cat}
                 </button>
-              </div>
-            ))
-          ) : (
-            <p className="col-span-full text-center text-gray-500">No workshops found.</p>
-          )}
+             ))}
+          </div>
+
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4">
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-onyx/40">Fee:</span>
+                <select
+                    className="bg-transparent border-b border-onyx/20 py-1 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-gold cursor-pointer"
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value as any)}
+                >
+                    <option value="all">ALL TIERS</option>
+                    <option value="free">COMMUNITY</option>
+                    <option value="paid">TECHNICAL</option>
+                </select>
+            </div>
+            
+            <div className="flex items-center gap-4">
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-onyx/40">Timeline:</span>
+                <select
+                    className="bg-transparent border-b border-onyx/20 py-1 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-gold cursor-pointer"
+                    value={upcomingDays}
+                    onChange={(e) => setUpcomingDays(e.target.value === "all" ? "all" : parseInt(e.target.value))}
+                >
+                    <option value="all">ANY TIME</option>
+                    <option value="7">NEXT 7 DAYS</option>
+                    <option value="14">NEXT 14 DAYS</option>
+                    <option value="30">NEXT 30 DAYS</option>
+                </select>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Section 4: FAQs */}
-      <section className="py-16 px-4 bg-yellow-50">
-        <h2 className="text-3xl font-semibold text-center mb-8">FAQs</h2>
-        <div className="max-w-3xl mx-auto space-y-6">
-          {faqs.map((faq, i) => (
-            <div key={i} className="bg-white p-6 rounded-xl shadow-md">
-              <h3 className="font-semibold text-lg mb-2">{faq.question}</h3>
-              <p className="text-gray-700">{faq.answer}</p>
+      {/* Workshop Grid */}
+      <section className="py-24 px-6 lg:px-12 max-w-[1600px] mx-auto">
+        {filteredWorkshops.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
+            {filteredWorkshops.map((workshop) => (
+              <WorkshopCard key={workshop.id} workshop={workshop} />
+            ))}
+          </div>
+        ) : (
+          <div className="py-40 text-center">
+            <h2 className="text-2xl font-serif italic text-onyx/40">No sessions match your current filters.</h2>
+            <button 
+              onClick={() => {setFilterType('all'); setUpcomingDays('all'); setActiveCategory('all');}}
+              className="mt-6 text-[10px] font-bold uppercase tracking-[0.3em] text-gold border-b border-gold hover:text-onyx hover:border-onyx transition-all duration-300"
+            >
+              Reset All Filters
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* Art Gallery Preview Section (Horizontal Scroll) */}
+      <section ref={horizontalSectionRef} className="bg-onyx text-cream py-32 overflow-hidden flex flex-col justify-center min-h-screen">
+        <div className="px-6 lg:px-12 mb-16">
+          <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-end gap-8">
+            <div className="max-w-xl animate-header">
+               <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gold mb-6 block">Visual Narrative</span>
+               <h2 className="text-5xl font-serif font-black uppercase leading-tight">Workshop Highlights</h2>
             </div>
-          ))}
+            <p className="animate-header text-sm text-cream/60 max-w-xs font-light tracking-wide leading-relaxed border-l border-gold/30 pl-6">
+                Capturing the moments of discovery and manual precision in our laboratory sessions.
+            </p>
+          </div>
+        </div>
+        
+        <div className="relative">
+          <div ref={horizontalTrackRef} className="flex gap-12 px-12 will-change-transform">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="gallery-item shrink-0 w-[450px] aspect-[4/5] overflow-hidden group border border-cream/10 relative">
+                <img
+                  src={`https://picsum.photos/id/${i + 200}/800/1000`}
+                  alt={`Highlight ${i + 1}`}
+                  className="w-full h-full object-cover transition-all duration-700 grayscale hover:grayscale-0 hover:scale-105 cursor-crosshair"
+                />
+                <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gold bg-onyx/80 backdrop-blur-md px-4 py-2">
+                        LAB_STUDY_00{i+1}
+                    </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQs Section */}
+      <section className="py-32 px-6 bg-white relative z-10">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16 animate-header">
+            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gold mb-6 block">Support</span>
+            <h2 className="text-4xl font-serif font-black uppercase">Frequent Inquiries</h2>
+          </div>
+          <div className="divide-y divide-onyx/10 border-t border-onyx/10">
+            {FAQS.map((faq, i) => (
+              <FaqItem key={i} faq={faq} />
+            ))}
+          </div>
         </div>
       </section>
     </div>
