@@ -12,6 +12,7 @@ import Franchise from './pages/Franchise';
 import Art from './pages/Art';
 import ArtProduct from './pages/ArtProduct'; 
 import Admin from './pages/Admin';
+import About from './pages/About'
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
             <Route path="/franchise" element={<Franchise />} />
             <Route path="/art" element={<Art/>}/>
             <Route path="/art/:id" element={<ArtProduct/>}/> 
+            <Route path="/about" element={<About/>}/>
           </Routes>
         </main>
 
