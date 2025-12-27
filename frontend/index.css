@@ -1,0 +1,17 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #ffffff;
+}
+
+.font-display {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Custom focus styles to match Rabuste Cafe theme */
+.focus-brand:focus-within {
+  border-color: #EC9706;
+  box-shadow: 0 0 0 1px #EC9706;
+}

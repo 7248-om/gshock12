@@ -1,6 +1,4 @@
-//
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Workshop from './pages/Workshop';
@@ -14,28 +12,33 @@ import ArtProduct from './pages/ArtProduct';
 import Admin from './pages/Admin';
 
 const App = () => {
+  const location = useLocation();
+  const isAuthPage = location.pathname.startsWith('/login') || location.pathname.startsWith('/admin');
+
   return (
-    <Router>
-      <div className="min-h-screen flex flex-col font-sans bg-cream text-onyx selection:bg-gold selection:text-white">
-        <Header />
+    // 3. Removed <Router> from here because it's now in main.tsx
+    <div className="min-h-screen flex flex-col font-sans bg-cream text-onyx selection:bg-gold selection:text-white">
+      
+      {/* 4. Conditionally hide Header */}
+      {!isAuthPage && <Header />}
 
-        <main className="flex-grow pt-[120px]">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/menu" element={<Menu />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/admin/*" element={<Admin />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/workshop" element={<Workshop/>}/>
-            <Route path="/franchise" element={<Franchise />} />
-            <Route path="/art" element={<Art/>}/>
-            <Route path="/art/:id" element={<ArtProduct/>}/> 
-          </Routes>
-        </main>
+      <main className="flex-grow pt-[120px]">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/login/*" element={<Login />} />
+          <Route path="/admin/*" element={<Admin />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/workshop" element={<Workshop/>}/>
+          <Route path="/franchise" element={<Franchise />} />
+          <Route path="/art" element={<Art/>}/>
+          <Route path="/art/:id" element={<ArtProduct/>}/> 
+        </Routes>
+      </main>
 
-        <Footer />
-      </div>
-    </Router>
+      {/* 5. Conditionally hide Footer */}
+      {!isAuthPage && <Footer />}
+    </div>
   );
 };
 
