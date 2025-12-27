@@ -43,13 +43,13 @@ const LoginForm: React.FC = () => {
             </button>
           </div>
           <div className="mt-3">
-            <Link to="login/forgot-password" size="sm" className="text-sm text-[#EC9706] font-semibold hover:underline">Forgot your password?</Link>
+            <Link to="forgot-password" size="sm" className="text-sm text-[#EC9706] font-semibold hover:underline">Forgot your password?</Link>
           </div>
         </div>
 
         <div className="pt-8 flex flex-col items-center">
            <p className="text-sm text-gray-600 mb-6 font-medium">
-            New to the cafe? <Link to="login/signup" className="text-[#EC9706] font-bold hover:underline">Join Us</Link>
+            New to the cafe? <Link to="signup" className="text-[#EC9706] font-bold hover:underline">Join Us</Link>
           </p>
           <button 
             type="submit"
