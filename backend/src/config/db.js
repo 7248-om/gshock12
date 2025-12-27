@@ -1,26 +1,19 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
-  const mongoUri = process.env.MONGO_URI;
+    try {
+        const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-  if (!mongoUri) {
-    throw new Error('MONGO_URI is not defined in environment variables');
-  }
+        if (!uri) {
+            throw new Error('MongoDB URI is not defined. Set MONGODB_URI or MONGO_URI in your .env file.');
+        }
 
-  try {
-    await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-
-    // eslint-disable-next-line no-console
-    console.log('Connected to MongoDB');
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('MongoDB connection error:', error);
-    throw error;
-  }
+        await mongoose.connect(uri);
+        console.log('MongoDB connected');
+    } catch (error) {
+        console.error('MongoDB connection failed:', error);
+        process.exit(1);
+    }
 };
 
 module.exports = connectDB;
-

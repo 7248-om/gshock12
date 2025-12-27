@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingBag, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../hooks/useCart';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const { totalItems, setIsCartOpen } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -16,6 +20,11 @@ const Header: React.FC = () => {
   const closeAndNavigate = (path: string) => {
     setIsMenuOpen(false);
     navigate(path);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    closeAndNavigate('/');
   };
 
   const navItems = [
@@ -57,8 +66,8 @@ const Header: React.FC = () => {
     {
       name: 'About',
       links: [
-        { label: 'Our Story', path: '/' },
-        { label: 'Café Concept', path: '/' },
+        { label: 'Our Story', path: '/about' },
+        { label: 'Café Concept', path: '/about' },
       ],
     },
   ];
@@ -98,20 +107,40 @@ const Header: React.FC = () => {
             >
               Visit Café
             </button>
-            <button
-  onClick={() => closeAndNavigate('/login')}
-  className="hidden md:flex items-center uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
->
-  Login
-</button>
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => closeAndNavigate('/admin')}
+                className="hidden md:flex items-center uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
+              >
+                Admin
+              </button>
+            )}
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="hidden md:flex items-center uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
+              >
+                Logout
+              </button>
+            ) : (
+              <button
+                onClick={() => closeAndNavigate('/login')}
+                className="hidden md:flex items-center uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
+              >
+                Login
+              </button>
+            )}
 
 
             <button
-              onClick={() => closeAndNavigate('/menu')}
+              onClick={() => {
+                closeAndNavigate('/menu');
+                setIsCartOpen(true);
+              }}
               className="flex items-center gap-2 uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
             >
               <ShoppingBag size={20} />
-              <span className="hidden md:inline">0</span>
+              <span className="hidden md:inline">{totalItems}</span>
             </button>
 
             <button
@@ -177,6 +206,11 @@ const Header: React.FC = () => {
                 <button onClick={() => closeAndNavigate('/menu')} className="block hover:text-white mb-2 text-left">
                   Visit the Café
                 </button>
+                {user?.role === 'admin' && (
+                  <button onClick={() => closeAndNavigate('/admin')} className="block hover:text-white mb-2 text-left">
+                    Admin Dashboard
+                  </button>
+                )}
                 <button className="block hover:text-white text-left">
                   Upcoming Workshops
                 </button>

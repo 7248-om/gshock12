@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import AuthLayout from '../components/login/AuthLayout';
 import LoginForm from '../components/login/LoginForm';
 import SignupForm from '../components/login/SignupForm';
@@ -7,10 +7,9 @@ import ForgotPasswordForm from '../components/login/ForgotPasswordForm';
 
 const Login: React.FC = () => {
   return (
-    /* Removed HashRouter here */
     <Routes>
       <Route element={<AuthLayout />}>
-        {/* We remove the 'index' redirect here because App.tsx handles the path */}
+        {/* The index route renders the main login form at /login */}
         <Route index element={<LoginForm />} /> 
         <Route path="signup" element={<SignupForm />} />
         <Route path="forgot-password" element={<ForgotPasswordForm />} />

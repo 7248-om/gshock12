@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import { WORKSHOPS, FAQS } from '../pages/constants';
 import { WorkshopType } from '../pages/types';
 import { gsap } from 'gsap';
@@ -18,13 +18,14 @@ const WorkshopCard: React.FC<{ workshop: WorkshopType }> = ({ workshop }) => {
     <div className="workshop-card group flex flex-col h-full bg-white border border-onyx/5 hover:border-gold/30 transition-all duration-500 overflow-hidden shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] opacity-0 translate-y-8">
       <div className="relative aspect-[4/5] overflow-hidden">
         <img 
-          src={workshop.image} 
-          alt={workshop.title} 
+          src={workshop.image || 'https://picsum.photos/800/600?random=1'} 
+          alt={workshop.title}
+          onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/800/600?random=1'; }}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[20%] group-hover:grayscale-0"
         />
         <div className="absolute top-4 left-4 flex flex-col gap-2">
             <span className="bg-onyx text-cream text-[9px] font-bold uppercase tracking-widest px-3 py-1.5">
-                {workshop.category}
+                {workshop.category || (workshop as any).tags?.[0] || 'Breather'}
             </span>
             {workshop.price === 0 && (
                  <span className="bg-gold text-onyx text-[9px] font-bold uppercase tracking-widest px-3 py-1.5">
@@ -56,7 +57,7 @@ const WorkshopCard: React.FC<{ workshop: WorkshopType }> = ({ workshop }) => {
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                {workshop.time}
+                {workshop.time || (workshop.date ? new Date(workshop.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '')}
             </div>
             <button 
               onClick={handleReserve}
@@ -100,6 +101,10 @@ const FaqItem: React.FC<{ faq: { question: string; answer: string } }> = ({ faq 
 
 const Workshop: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || '/api';
+  const [workshopsData, setWorkshopsData] = useState<WorkshopType[]>(WORKSHOPS);
+  const [loadingWorkshops, setLoadingWorkshops] = useState(false);
+  const [workshopsError, setWorkshopsError] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -156,6 +161,27 @@ const Workshop: React.FC = () => {
     return () => ctx.revert();
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchWorkshops() {
+      setLoadingWorkshops(true);
+      setWorkshopsError(null);
+      try {
+        const res = await fetch(`${API_BASE_URL}/workshops`);
+        if (!res.ok) throw new Error(`Failed to fetch workshops: ${res.status}`);
+        const data = await res.json();
+        if (!cancelled && Array.isArray(data)) setWorkshopsData(data);
+      } catch (err) {
+        if (!cancelled) setWorkshopsError(err instanceof Error ? err.message : String(err));
+      } finally {
+        if (!cancelled) setLoadingWorkshops(false);
+      }
+    }
+
+    fetchWorkshops();
+    return () => { cancelled = true; };
+  }, [API_BASE_URL]);
+
   const galleryItems = [
     { id: 1, src: "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=1200", label: "Extraction Study" },
     { id: 2, src: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&q=80&w=1200", label: "Tasting Protocols" },
@@ -203,8 +229,14 @@ const Workshop: React.FC = () => {
             <h2 className="text-4xl font-serif font-black uppercase">Technical Masterclasses</h2>
         </div>
         <div className="workshop-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
-          {WORKSHOPS.map((workshop) => (
-            <WorkshopCard key={workshop.id} workshop={workshop} />
+          {loadingWorkshops && (
+            <div className="col-span-full text-center text-sm text-onyx/60">Loading workshops…</div>
+          )}
+          {workshopsError && (
+            <div className="col-span-full text-center text-sm text-red-600">{workshopsError}</div>
+          )}
+          {workshopsData.map((workshop) => (
+            <WorkshopCard key={workshop._id || workshop.id} workshop={workshop} />
           ))}
         </div>
       </section>

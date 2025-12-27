@@ -1,17 +1,31 @@
-const ApiError = require('../utils/ApiError');
-const httpStatus = require('../constants/httpStatus');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user.model');
 
-const authMiddleware = (req, res, next) => {
-  // Implement your authentication logic here (e.g., JWT verification).
-  // For now, this is a placeholder that allows all requests through.
+// Auth middleware that validates backend JWT and attaches the user to req.user
+async function authMiddleware(req, res, next) {
+  const authHeader = req.headers.authorization || '';
 
-  // Example if you later want to enforce auth:
-  // if (!req.user) {
-  //   return next(new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized'));
-  // }
+  if (!authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
 
-  return next();
-};
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(payload.sub);
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    req.user = user;
+    return next();
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('JWT authentication error:', error);
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+}
 
 module.exports = authMiddleware;
-

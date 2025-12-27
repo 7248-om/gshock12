@@ -1,5 +1,6 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
 import { COFFEE_MENU } from '../../constants';
 import { MenuCategory, CoffeeItem } from '../../types';
 import { CoffeeCard } from './CoffeeCard';
@@ -8,14 +9,47 @@ interface CoffeeMenuProps {
   onAddToCart: (item: CoffeeItem) => void;
 }
 
+// Backend base URL: set VITE_BACKEND_API_URL in frontend .env; falls back to relative /api
+const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || '/api';
+
 export const CoffeeMenu: React.FC<CoffeeMenuProps> = ({ onAddToCart }) => {
   const [activeCategory, setActiveCategory] = useState<MenuCategory | 'All'>('All');
+  const [menuItems, setMenuItems] = useState<CoffeeItem[]>(COFFEE_MENU);
   const categories = Object.values(MenuCategory);
 
+  // Optionally load products from backend and map them into CoffeeItem shape
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/products`);
+        const products = response.data as any[];
+
+        if (Array.isArray(products) && products.length > 0) {
+          const mapped: CoffeeItem[] = products.map((p) => ({
+            id: p._id,
+            name: p.name,
+            description: p.description,
+            price: `$${p.price.toFixed(2)}`,
+            imageUrl: p.imageUrl,
+            // Backend model does not currently support tags/category; default category
+            tags: [],
+            category: MenuCategory.COFFEE,
+          }));
+
+          setMenuItems(mapped);
+        }
+      } catch (error) {
+        console.error('Failed to load products from backend, falling back to static menu:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const filteredMenu = useMemo(() => {
-    if (activeCategory === 'All') return COFFEE_MENU;
-    return COFFEE_MENU.filter(item => item.category === activeCategory);
-  }, [activeCategory]);
+    if (activeCategory === 'All') return menuItems;
+    return menuItems.filter(item => item.category === activeCategory);
+  }, [activeCategory, menuItems]);
 
   return (
     <div className="container mx-auto px-6 max-w-7xl">

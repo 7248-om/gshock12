@@ -10,6 +10,7 @@ import Franchise from './pages/Franchise';
 import Art from './pages/Art';
 import ArtProduct from './pages/ArtProduct'; 
 import Admin from './pages/Admin';
+import About from './pages/About'
 
 const App = () => {
   const location = useLocation();

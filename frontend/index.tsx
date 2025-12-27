@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router } from 'react-router-dom'; // Add this import
+import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './hooks/useCart';
+import './index.css'; // Ensure your CSS with Inter and Playfair is imported
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -11,8 +14,13 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <Router> {/* Wrap App here */}
-      <App />
-    </Router>
+    {/* Auth and Cart should usually wrap the Router so they are available everywhere */}
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <App />
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   </React.StrictMode>
 );

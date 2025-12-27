@@ -1,13 +1,13 @@
 import { CoffeeMenu } from "../components/menu/CoffeeMenu";
 import { CoffeeFAQ } from "../components/menu/CoffeeFAQ";
 import { CartDrawer } from "../components/cart/CartDrawer";
-import { useAuthMock } from "../hooks/useAuthMock";
 import { useCart } from "../hooks/useCart";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Menu = () => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuthMock();
+  const { user } = useAuth();
 
   const {
     cartItems,
@@ -21,7 +21,7 @@ const Menu = () => {
 
   const handleCheckout = () => {
     setIsCartOpen(false);
-    navigate(isLoggedIn ? "/payment" : "/login");
+    navigate(user ? "/payment" : "/login");
   };
 
   return (
