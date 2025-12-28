@@ -1,4 +1,4 @@
-const ImageKit = require('imagekit-javascript');
+const ImageKit = require('imagekit');
 const Media = require('../models/media.model');
 
 const imagekit = new ImageKit({
@@ -14,11 +14,12 @@ async function uploadMedia(req, res) {
     }
 
     const buffer = req.file.buffer;
-    const base64 = buffer.toString('base64');
 
+    // Use imagekit.upload method with proper parameters
     const uploadResult = await imagekit.upload({
-      file: base64,
+      file: buffer,
       fileName: req.file.originalname,
+      folder: '/gshock/products/', // Optional: organize uploads in folders
     });
 
     const media = await Media.create({

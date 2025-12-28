@@ -46,7 +46,15 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
     try {
       const formData = new FormData(e.currentTarget);
       
-      const imageUrlVal = (uploadedUrl) ? uploadedUrl : (formData.get('imageUrl') as string) || 'https://picsum.photos/seed/coffee/400/400';
+      // Use uploaded URL if available, otherwise use the text input value, or use default if neither provided
+      let imageUrlVal = uploadedUrl || (formData.get('imageUrl') as string) || '';
+      
+      // If still no image URL, warn the user instead of silently using default
+      if (!imageUrlVal) {
+        setSubmitError('Please upload an image or provide an image URL');
+        setIsSubmitting(false);
+        return;
+      }
 
       const newItem: MenuItem = {
         id: editingItem?.id || `menu-${Date.now()}`,
@@ -264,6 +272,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                     </div>
                     <div className="flex-1 space-y-2">
                       <input
+                        name="imageFile"
                         type="file"
                         accept="image/*"
                         onChange={async (e) => {
@@ -271,17 +280,17 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                           if (!f) return;
                           try {
                             setUploading(true);
-                            setUploadedUrl(null);
-                            const form = new FormData();
-                            form.append('file', f);
-                            form.append('type', f.type.startsWith('video') ? 'video' : 'image');
+                            setSubmitError(null);
+                            const uploadForm = new FormData();
+                            uploadForm.append('file', f);
+                            uploadForm.append('type', f.type.startsWith('video') ? 'video' : 'image');
 
                             const res = await fetch(`${API_BASE_URL}/media/upload`, {
                               method: 'POST',
                               headers: {
                                 Authorization: token ? `Bearer ${token}` : '',
                               },
-                              body: form,
+                              body: uploadForm,
                             });
 
                             if (!res.ok) {
@@ -290,9 +299,15 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                             }
 
                             const body = await res.json();
-                            setUploadedUrl(body.url || (body.media && body.media.url) || null);
+                            const imageUrl = body.url || (body.media?.url) || null;
+                            if (!imageUrl) {
+                              throw new Error('No image URL returned from upload');
+                            }
+                            setUploadedUrl(imageUrl);
                           } catch (err: any) {
-                            setSubmitError(err.message || 'Upload failed');
+                            console.error('Image upload error:', err);
+                            setSubmitError(err.message || 'Image upload failed');
+                            setUploadedUrl(null);
                           } finally {
                             setUploading(false);
                           }
@@ -300,12 +315,13 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                       />
                       <input
                         name="imageUrl"
-                        placeholder="https://..."
+                        type="text"
+                        placeholder="https://... or upload above"
                         value={uploadedUrl ?? (editingItem?.imageUrl || '')}
                         onChange={(e) => setUploadedUrl(e.target.value || null)}
                         className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:border-neutral-500 outline-none h-12"
                       />
-                      {uploading && <div className="text-xs text-neutral-400">Uploading…</div>}
+                      {uploading && <div className="text-xs text-neutral-400">Uploading image…</div>}
                     </div>
                   </div>
                 </div>
