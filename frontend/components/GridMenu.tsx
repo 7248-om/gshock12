@@ -4,32 +4,31 @@ const GridMenu: React.FC = () => {
   const items = [
     {
       title: 'Coffee',
-      img: 'https://product.onyxcontent.com/media/pages/ecom/home/b9918a89db-1754062425/bt_colombia_jairo_arcila_lychee_11-copy.webp',
+      img: 'https://drive.google.com/file/d/1NWf1ZT_DLoz0l3xPC1JgJCcb2eoqxM_b/view?usp=drive_link',
       link: '#'
     },
     {
-      title: 'Tea',
-      img: 'https://product.onyxcontent.com/media/pages/ecom/home/075765f5cf-1754062600/bt_tealight_9-copy.webp',
+      title: 'Savory Bites',
+      img: 'https://drive.google.com/file/d/13ccbocysOZscyGnjqIGwHU-PxWSfwJsJ/view?usp=drive_link',
       link: '#'
     },
     {
-      title: 'Chocolate',
-      img: 'https://product.onyxcontent.com/media/pages/ecom/home/191746d5a4-1754062326/chocolate.webp',
-      link: '#'
-    },
-    {
-      title: 'Merch',
-      img: 'https://product.onyxcontent.com/media/pages/ecom/home/5a29735f4a-1754062202/new_mugs_june_2025_ee-143-copy.webp',
+      title: 'Desserts',
+      img: 'https://drive.google.com/file/d/1hkSoKw54H4JTEcSkq79a8bzecOzTlAiy/view?usp=drive_link',
       link: '#'
     }
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 w-full">
+    <div className="grid grid-cols-2 md:grid-cols-3 w-full">
       {items.map((item, i) => (
-        <a key={i} href={item.link} className="relative aspect-square group overflow-hidden border border-cream/10">
-          <img 
-            src={item.img} 
+        <a
+          key={i}
+          href={item.link}
+          className="relative aspect-square group overflow-hidden border border-cream/10"
+        >
+          <img
+            src={item.img}
             alt={item.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />

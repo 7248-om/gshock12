@@ -94,7 +94,7 @@ const Home: React.FC = () => {
         theme="dark"
       />
 
-      <SplitSection
+      {/* <SplitSection
         alignment="left"
         mediaUrl="https://images.unsplash.com/photo-1507919985931-6d98f5b4a04c"
         mediaType="image"
@@ -114,10 +114,10 @@ const Home: React.FC = () => {
         ctaText="Meet the Artists"
         ctaLink="#"
         backgroundColor="bg-cream"
-      />
+      /> */}
 
       <SplitSection
-        alignment="left"
+        alignment="right"
         mediaUrl="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9"
         mediaType="image"
         title="AI-Enhanced Café Experience"
@@ -127,9 +127,9 @@ const Home: React.FC = () => {
         theme="dark"
       />
 
-      <Arches />
+      
 
-      <SplitSection
+      {/* <SplitSection
         alignment="right"
         mediaUrl="https://images.unsplash.com/photo-1514933651103-005eec06c04b"
         mediaType="image"
@@ -138,7 +138,7 @@ const Home: React.FC = () => {
         ctaText="Find a Café"
         ctaLink="#"
         backgroundColor="bg-cream-dark"
-      />
+      /> */}
 
       <SplitSection
         alignment="center"
@@ -150,8 +150,8 @@ const Home: React.FC = () => {
         ctaLink="#"
         theme="dark"
       />
-
-      <SplitSection
+      <Arches />
+      {/* <SplitSection
         alignment="left"
         mediaUrl="https://images.unsplash.com/photo-1509042239860-f550ce710b93"
         mediaType="image"
@@ -160,8 +160,8 @@ const Home: React.FC = () => {
         ctaText="Explore the Experience"
         ctaLink="#"
         theme="dark"
-      />
-
+      /> */}
+{/* 
       <div className="py-20 bg-cream">
         <div className="container mx-auto px-6 text-center">
           <h3 className="text-xl font-bold mb-8">FEATURED IN</h3>
@@ -172,9 +172,9 @@ const Home: React.FC = () => {
             <span>Local Brands</span>
           </div>
         </div>
-      </div>
+      </div> */}
 
-      <DoubleSplit 
+      {/* <DoubleSplit 
         left={{
           mediaUrl: "https://images.unsplash.com/photo-1511920170033-f8396924c348",
           mediaType: "image",
@@ -189,7 +189,7 @@ const Home: React.FC = () => {
           text: "Interested in bringing the Rabuste experience to your city? Franchise opportunities are now open.",
           link: "#"
         }}
-      />
+      /> */}
 
       <GridMenu />
     </>
