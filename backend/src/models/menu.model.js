@@ -14,32 +14,13 @@ const menuSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      enum: ['Coffee', 'Savory Bites', 'Desserts', 'coffee', 'beverage', 'food', 'dessert'],
+      enum: ['coffee', 'beverage', 'food', 'dessert'],
       required: true,
     },
 
     price: {
       type: Number,
       required: true,
-    },
-
-    imageUrl: {
-      type: String,
-      default: 'https://picsum.photos/seed/coffee/400/400',
-    },
-
-    stockStatus: {
-      type: String,
-      enum: ['In Stock', 'Out of Stock'],
-      default: 'In Stock',
-    },
-
-    roastLevel: {
-      type: String,
-    },
-
-    tastingNotes: {
-      type: String,
     },
 
     tags: [

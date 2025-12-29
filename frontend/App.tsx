@@ -1,4 +1,6 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+//
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Workshop from './pages/Workshop';
@@ -14,16 +16,10 @@ import About from './pages/About'
 import Why from './pages/Why';
 
 const App = () => {
-  const location = useLocation();
-  const isAuthPage = location.pathname.startsWith('/login') || location.pathname.startsWith('/admin');
-
   return (
-    // 3. Removed <Router> from here because it's now in main.tsx
-    <div className="min-h-screen flex flex-col font-sans bg-cream text-onyx selection:bg-gold selection:text-white">
-      
-      {/* 4. Conditionally hide Header */}
-      {!isAuthPage && <Header />}
-
+    <Router>
+      <div className="min-h-screen flex flex-col font-sans bg-cream text-onyx selection:bg-gold selection:text-white">
+        <Header />
 
         <main className="flex-grow pt-[120px]">
           <Routes>
@@ -41,10 +37,9 @@ const App = () => {
           </Routes>
         </main>
 
-
-      {/* 5. Conditionally hide Footer */}
-      {!isAuthPage && <Footer />}
-    </div>
+        <Footer />
+      </div>
+    </Router>
   );
 };
 

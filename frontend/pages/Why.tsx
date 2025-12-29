@@ -30,15 +30,15 @@ const Why = () => {
   return (
     <div className="animate-in fade-in duration-700">
       {/* Hero Section */}
-      <section className="relative h-[60vh] flex items-center justify-center bg-[#FF9D00] text-white overflow-hidden">
+      <section className="relative h-[60vh] flex items-center justify-center bg-onyx text-white overflow-hidden">
         <div className="absolute inset-0 opacity-40">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#FF9D00]"></div>
-          <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center blur "></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-onyx"></div>
+          <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center grayscale"></div>
         </div>
         <div className="relative z-10 text-center px-4">
-          <span className="text-[#7B542F] uppercase tracking-[0.3em] text-lg font-bold  mb-4 block">The Bold Choice</span>
+          <span className="text-gold uppercase tracking-[0.3em] text-sm mb-4 block">The Bold Choice</span>
           <h1 className="text-5xl md:text-7xl font-serif mb-6">Why Robusta?</h1>
-          <p className="max-w-4xl mx-auto text-lg md:text-xl text-black/80 leading-relaxed font-bold">
+          <p className="max-w-2xl mx-auto text-lg md:text-xl text-cream/80 leading-relaxed font-light">
             In a world obsessed with Arabica, we choose the bean that stands its ground. 
             Discover the science of strength and the soul of the perfect crema.
           </p>
@@ -49,7 +49,7 @@ const Why = () => {
       <section className="py-24 bg-cream px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
           <div className="space-y-4 group">
-            <div className="w-16 h-16 bg-gold/10 flex items-center justify-center rounded-full text-[#FF9D00] mb-6 group-hover:bg-gold group-hover:text-white transition-colors duration-300">
+            <div className="w-16 h-16 bg-gold/10 flex items-center justify-center rounded-full text-gold mb-6 group-hover:bg-gold group-hover:text-white transition-colors duration-300">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
@@ -61,7 +61,7 @@ const Why = () => {
           </div>
 
           <div className="space-y-4 group">
-            <div className="w-16 h-16 bg-gold/10 flex items-center justify-center rounded-full text-[#FF9D00] mb-6 group-hover:bg-gold group-hover:text-white transition-colors duration-300">
+            <div className="w-16 h-16 bg-gold/10 flex items-center justify-center rounded-full text-gold mb-6 group-hover:bg-gold group-hover:text-white transition-colors duration-300">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
               </svg>
@@ -73,7 +73,7 @@ const Why = () => {
           </div>
 
           <div className="space-y-4 group">
-            <div className="w-16 h-16 bg-gold/10 flex items-center justify-center rounded-full text-[#FF9D00] mb-6 group-hover:bg-gold group-hover:text-white transition-colors duration-300">
+            <div className="w-16 h-16 bg-gold/10 flex items-center justify-center rounded-full text-gold mb-6 group-hover:bg-gold group-hover:text-white transition-colors duration-300">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
@@ -87,7 +87,7 @@ const Why = () => {
       </section>
 
       {/* Flavor Profile Section */}
-      <section className="bg-[#FF9D00] text-cream py-24 px-4 overflow-hidden relative">
+      <section className="bg-onyx text-cream py-24 px-4 overflow-hidden relative">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16">
           <div className="flex-1 space-y-8">
             <h2 className="text-4xl md:text-5xl font-serif">A Profile of Depth</h2>
@@ -180,10 +180,10 @@ const Why = () => {
       </section> */}
 
       {/* Comparison Table */}
-      <section className="py-24 bg-[#FFCF71] text-black px-4">
+      <section className="py-24 bg-onyx text-white px-4">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-4xl font-serif text-center mb-16">Arabica vs. Robusta</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b border-white/10 pb-4 text-black uppercase tracking-widest text-sm font-bold">
+          <div className="grid grid-cols-1 md:grid-cols-3 border-b border-white/10 pb-4 text-gold uppercase tracking-widest text-sm font-bold">
             <div className="hidden md:block">Characteristic</div>
             <div className="md:text-center">Arabica</div>
             <div className="md:text-center">Robusta</div>
@@ -197,16 +197,16 @@ const Why = () => {
             ['Crema', 'Thin & Pale', 'Thick & Golden'],
           ].map(([label, arabica, robusta], i) => (
             <div key={i} className="grid grid-cols-1 md:grid-cols-3 py-6 border-b border-white/10 hover:bg-white/5 transition-colors duration-200">
-              <div className="font-medium  mb-2 md:mb-0">{label}</div>
-              <div className="md:text-center ">{arabica}</div>
-              <div className="md:text-center  font-bold">{robusta}</div>
+              <div className="font-medium text-cream/50 mb-2 md:mb-0">{label}</div>
+              <div className="md:text-center text-cream/80">{arabica}</div>
+              <div className="md:text-center text-gold font-bold">{robusta}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-[#B6771D] text-white text-center px-4">
+      <section className="py-24 bg-gold text-white text-center px-4">
         <h2 className="text-4xl md:text-5xl font-serif mb-8">Ready for a Stronger Morning?</h2>
         <p className="max-w-xl mx-auto mb-12 text-lg text-white/90">
           Experience the bold depth of premium specialty Robusta in our curated menu.

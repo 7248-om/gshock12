@@ -6,27 +6,12 @@ const artworkSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     description: {
       type: String,
     },
 
-    year: {
-      type: String,
-    },
-
-    medium: {
-      type: String,
-    },
-
-    dimensions: {
-      type: String,
-    },
-
-    primaryImageUrl: {
-      type: String,
-    },
-
-    hoverImageUrl: {
+    imageUrl: {
       type: String,
     },
 
@@ -35,24 +20,9 @@ const artworkSchema = new mongoose.Schema(
     },
 
     artist: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Artist',
-    },
-    artistName: {
-      type: String,
-    },
-
-    status: {
-      type: String,
-      enum: ['Available', 'Sold Out', 'Limited Edition'],
-      default: 'Available',
-    },
-
-    themeColor: {
-      type: String,
-    },
-    tastingNotes: {
-      type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Artist',
+        required: true,
     },
     tags: [
       {

@@ -1,3 +1,4 @@
+
 import React, { useLayoutEffect, useRef, useState, useMemo, useEffect } from 'react';
 import { WORKSHOPS, FAQS } from './constants';
 import { WorkshopType } from './types';
@@ -17,22 +18,21 @@ const WorkshopCard: React.FC<{ workshop: WorkshopType }> = ({ workshop }) => {
   };
 
   return (
-    <div className="workshop-card group relative w-full h-[28rem] bg-cream border border-[#7B542F] rounded-t-full overflow-hidden opacity-0 translate-y-12">
+    <div className="workshop-card group relative w-full h-[28rem] bg-cream border border-coffee rounded-t-full overflow-hidden opacity-0 translate-y-12">
       {/* ---------- PART 1 : IMAGE ---------- */}
       <div className="relative h-full overflow-hidden transition-all duration-500 group-hover:opacity-0 group-hover:scale-95">
         <img
           src={workshop.image}
           alt={workshop.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[20%] group-hover:grayscale-0 blur-sm"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[20%] group-hover:grayscale-0"
         />
-        
-        <div className="absolute inset-0 flex items-center justify-center">
-  
-    <span className="bg-black text-white text-[30px] text-center font-bold  uppercase tracking-widest px-3 py-1.5 shadow-md">
-      {workshop.title}
-    </span>
-  
-</div>
+        <div className="absolute top-4 left-4 flex flex-col">
+          {workshop.price === 0 && (
+            <span className="bg-gold text-onyx text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 shadow-md">
+              Community
+            </span>
+          )}
+        </div>
       </div>
 
       {/* ---------- PART 2 : CONTENT (HOVER) ---------- */}
@@ -47,7 +47,7 @@ const WorkshopCard: React.FC<{ workshop: WorkshopType }> = ({ workshop }) => {
         </div>
 
         <h3 className="text-xl font-serif font-black mb-3 uppercase text-center mt-4 leading-tight tracking-tight text-coffee">
-          About the Workshop
+          {workshop.title}
         </h3>
 
         <p className="font-light mb-6 mt-2 px-2 line-clamp-4 text-[14px] text-center italic text-onyx/70">
@@ -63,8 +63,8 @@ const WorkshopCard: React.FC<{ workshop: WorkshopType }> = ({ workshop }) => {
             disabled={booked}
             className={`w-full text-[10px] font-black uppercase tracking-[0.2em] py-4 transition-all duration-300 ${
               booked
-                ? 'bg-[#B6771D] text-black cursor-default'
-                : 'bg-[#FF9D00] text-black hover:bg-gold hover:text-onyx active:scale-95'
+                ? 'bg-gold text-onyx cursor-default'
+                : 'bg-onyx text-cream hover:bg-gold hover:text-onyx active:scale-95'
             }`}
           >
             {booked ? 'Request Received' : 'Reserve Spot'}
@@ -185,7 +185,7 @@ const Workshop: React.FC = () => {
     <div ref={containerRef} className="min-h-screen bg-cream overflow-x-hidden selection:bg-gold selection:text-onyx">
       
       {/* HERO */}
-      <section className="relative h-[60vh] flex items-center justify-center bg-[#FF9D00] overflow-hidden">
+      <section className="relative h-[60vh] flex items-center justify-center bg-[#7B542F] overflow-hidden">
         
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
           <span className="hero-tag text-[10px] font-bold uppercase tracking-[0.5em] text-gold mb-8 block">
@@ -300,61 +300,18 @@ const Workshop: React.FC = () => {
               <p className="text-[11px] font-black uppercase tracking-widest mb-6 text-onyx/40">
                 Directory
               </p>
-                   <ul className="space-y-4 text-sm">
-       <li>
-      <a
-        href="/"
-        className="block text-onyx/80 hover:text-[#7B542F] transition-colors"
-      >
-       All about Rabuste: Home
-      </a>
-    </li>
-    <li>
-      <a
-        href="/menu"
-        className="block text-onyx/80 hover:text-[#7B542F] transition-colors"
-      >
-        The Menu
-      </a>
-    </li>
-
-    <li>
-      <a
-        href="/art"
-        className="block text-onyx/80 hover:text-[#7B542F] transition-colors"
-      >
-        Calming Art Gallery
-      </a>
-    </li>
-
-    <li>
-      <a
-        href="/about"
-        className="block text-onyx/80 hover:text-[#7B542F] transition-colors"
-      >
-        About Us: Our Story
-      </a>
-    </li>
-<li>
-      <a
-        href="/why"
-        className="block text-onyx/80 hover:text-[#7B542F] transition-colors"
-      >
-        Why Robusta? 
-      </a>
-    </li>
-
-    <li>
-      <a
-        href="/Franchise"
-        className="block text-onyx/80 hover:text-[#7B542F] transition-colors"
-      >
-        Franchise
-      </a>
-    </li>
-
-    
-  </ul>
+              <ul className="space-y-4">
+                {["Home", "The Menu", "Art Gallery", "Our Story", "Franchise"].map(link => (
+                  <li key={link}>
+                    <a
+                      href="#"
+                      className="text-sm text-onyx/80 hover:text-coffee transition-all duration-300 hover:tracking-widest"
+                    >
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           </aside>
 
@@ -384,7 +341,7 @@ const Workshop: React.FC = () => {
       </section>
 
         {/* FAQ */}
-       <section className="py-32 bg-[#FFCF71] px-6">
+       <section className="py-32 bg-[#7B542F] px-6">
        <div className="max-w-3xl  mx-auto">
          {FAQS.map((faq, i) => (
             <FaqItem key={i} faq={faq} />

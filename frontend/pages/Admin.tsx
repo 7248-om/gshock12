@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -10,7 +11,6 @@ import WorkshopManagement from './admin/WorkshopManagement';
 import FranchiseManagement from './admin/FranchiseManagement';
 import MarketingCMS from './admin/MarketingCMS';
 import UserManagement from './admin/UserManagement';
-import Header from '@/components/Header';
 
 import { 
   MenuItem, 
@@ -21,7 +21,8 @@ import {
   Workshop, 
   FranchiseLead, 
   FAQ, 
-  User 
+  User, 
+  LeadStatus 
 } from './types';
 import { useAuth } from '../context/AuthContext';
 
@@ -31,7 +32,23 @@ const Admin: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading, token } = useAuth();
 
-  // --- MOVED UP: State declarations must be at the top level ---
+  // Frontend guard: only allow admins to access admin dashboard UI
+  useEffect(() => {
+    if (loading) return;
+
+    if (!user) {
+      navigate('/login', { replace: true });
+    } else if (user.role !== 'admin') {
+      navigate('/', { replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  // While checking auth / redirecting, don't render admin UI
+  if (loading || !user || user.role !== 'admin') {
+    return null;
+  }
+
+  // State for all data
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -50,7 +67,7 @@ const Admin: React.FC = () => {
     isStoreOpen: true
   });
 
-  // Axios instance
+  // Axios instance with auth header
   const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -58,24 +75,8 @@ const Admin: React.FC = () => {
     },
   });
 
-  // --- Hooks must run regardless of loading state ---
-  
-  // Frontend guard
+  // Fetch all data from APIs
   useEffect(() => {
-    if (loading) return;
-
-    if (!user) {
-      navigate('/login', { replace: true });
-    } else if (user.role !== 'admin') {
-      navigate('/', { replace: true });
-    }
-  }, [user, loading, navigate]);
-
-  // Fetch all data
-  useEffect(() => {
-    // Only fetch if we have a token and are not in the initial auth loading state
-    if (!token || loading) return;
-
     const fetchAllData = async () => {
       try {
         setIsLoading(true);
@@ -93,21 +94,26 @@ const Admin: React.FC = () => {
           axiosInstance.get('/admin/users'),
         ]);
 
+        // Format data to match component types
         setMenuItems(productsRes.data || []);
         setOrders(ordersRes.data || []);
         setArtworks(artworksRes.data || []);
         setWorkshops(workshopsRes.data || []);
         setUsers(usersRes.data || []);
 
+        // Calculate stats
         const totalRevenue = ordersRes.data?.reduce((sum: number, order: Order) => {
           const orderTotal = order.items?.reduce((itemSum: number, item: any) => itemSum + (item.price * item.quantity), 0) || 0;
           return sum + orderTotal;
         }, 0) || 0;
 
+        const totalOrdersToday = ordersRes.data?.length || 0;
+        const activeBookings = workshopsRes.data?.length || 0;
+
         setStats({
           totalRevenue,
-          totalOrdersToday: ordersRes.data?.length || 0,
-          activeBookings: workshopsRes.data?.length || 0,
+          totalOrdersToday,
+          activeBookings,
           artInquiries: artworksRes.data?.length || 0,
           isStoreOpen: true
         });
@@ -118,21 +124,24 @@ const Admin: React.FC = () => {
       }
     };
 
-    fetchAllData();
-  }, [token, loading]); // Added loading to dependencies
+    if (token) {
+      fetchAllData();
+    }
+  }, [token]);
 
-  // --- Handlers ---
   const handleToggleStore = () => {
     setIsStoreOpen(!isStoreOpen);
     setStats(prev => ({ ...prev, isStoreOpen: !isStoreOpen }));
   };
 
+  // Menu/Product handlers
   const handleAddMenuItem = async (item: MenuItem) => {
     try {
       const response = await axiosInstance.post('/products', item);
       setMenuItems([response.data, ...menuItems]);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.message || 'Failed to add menu item');
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Failed to add menu item';
+      throw new Error(message);
     }
   };
 
@@ -140,8 +149,9 @@ const Admin: React.FC = () => {
     try {
       const response = await axiosInstance.put(`/products/${item._id || item.id}`, item);
       setMenuItems(menuItems.map(i => (i._id || i.id) === (item._id || item.id) ? response.data : i));
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.message || 'Failed to update menu item');
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Failed to update menu item';
+      throw new Error(message);
     }
   };
 
@@ -149,11 +159,13 @@ const Admin: React.FC = () => {
     try {
       await axiosInstance.delete(`/products/${id}`);
       setMenuItems(menuItems.filter(i => (i._id || i.id) !== id));
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.message || 'Failed to delete menu item');
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Failed to delete menu item';
+      throw new Error(message);
     }
   };
 
+  // Order handlers
   const handleUpdateOrderStatus = async (id: string, status: OrderStatus) => {
     try {
       const response = await axiosInstance.put(`/orders/${id}`, { status });
@@ -163,12 +175,14 @@ const Admin: React.FC = () => {
     }
   };
 
+  // Artwork handlers
   const handleAddArtwork = async (artwork: Artwork) => {
     try {
       const response = await axiosInstance.post('/artworks', artwork);
       setArtworks([response.data, ...artworks]);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.message || 'Failed to add artwork');
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Failed to add artwork';
+      throw new Error(message);
     }
   };
 
@@ -176,8 +190,9 @@ const Admin: React.FC = () => {
     try {
       const response = await axiosInstance.put(`/artworks/${artwork._id || artwork.id}`, artwork);
       setArtworks(artworks.map(a => (a._id || a.id) === (artwork._id || artwork.id) ? response.data : a));
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.message || 'Failed to update artwork');
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Failed to update artwork';
+      throw new Error(message);
     }
   };
 
@@ -185,17 +200,20 @@ const Admin: React.FC = () => {
     try {
       await axiosInstance.delete(`/artworks/${id}`);
       setArtworks(artworks.filter(a => (a._id || a.id) !== id));
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.message || 'Failed to delete artwork');
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Failed to delete artwork';
+      throw new Error(message);
     }
   };
 
+  // Workshop handlers
   const handleAddWorkshop = async (workshop: Workshop) => {
     try {
       const response = await axiosInstance.post('/workshops', workshop);
       setWorkshops([response.data, ...workshops]);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.message || 'Failed to add workshop');
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Failed to add workshop';
+      throw new Error(message);
     }
   };
 
@@ -203,8 +221,9 @@ const Admin: React.FC = () => {
     try {
       const response = await axiosInstance.put(`/workshops/${workshop._id || workshop.id}`, workshop);
       setWorkshops(workshops.map(w => (w._id || w.id) === (workshop._id || workshop.id) ? response.data : w));
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.message || 'Failed to update workshop');
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Failed to update workshop';
+      throw new Error(message);
     }
   };
 
@@ -212,24 +231,18 @@ const Admin: React.FC = () => {
     try {
       await axiosInstance.delete(`/workshops/${id}`);
       setWorkshops(workshops.filter(w => (w._id || w.id) !== id));
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.message || 'Failed to delete workshop');
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Failed to delete workshop';
+      throw new Error(message);
     }
   };
 
-  // --- MOVED DOWN: Conditional returns must happen AFTER all hooks ---
-  
-  if (loading || !user || user.role !== 'admin') {
-    return null; // Or a loading spinner/unauthorized component
-  }
-
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-coffee-950">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          {/* Updated spinner color to match new theme */}
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-coffee-400 mx-auto mb-4"></div>
-          <p className="text-coffee-500">Loading admin dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading admin dashboard...</p>
         </div>
       </div>
     );
@@ -237,7 +250,6 @@ const Admin: React.FC = () => {
 
   return (
     <Layout isStoreOpen={isStoreOpen} onToggleStore={handleToggleStore}>
-      <Header />
       <Routes>
         <Route path="/" element={<Dashboard stats={stats} />} />
         <Route 

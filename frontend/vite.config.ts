@@ -8,18 +8,6 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
-        // 1. Add the Headers for Google Login (COOP)
-        headers: {
-            "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
-        },
-        // 2. Add the Proxy so /api hits your Backend, not the Frontend
-        proxy: {
-          '/api': {
-            target: 'http://localhost:5001', // Change this to your actual backend port
-            changeOrigin: true,
-            secure: false,
-          },
-        },
       },
       plugins: [react()],
       define: {

@@ -16,14 +16,6 @@ const workshopSchema = new mongoose.Schema(
       required: true,
     },
 
-    startTime: {
-      type: Date,
-    },
-
-    endTime: {
-      type: Date,
-    },
-
     price: {
       type: Number,
       default: 0,
@@ -33,32 +25,11 @@ const workshopSchema = new mongoose.Schema(
       type: Number,
     },
 
-    imageUrl: {
-      type: String,
-    },
-
-    primaryImageUrl: {
-      type: String,
-    },
-
-    category: {
-      type: String,
-      enum: ['Foundations', 'Expert', 'Breather'],
-      default: 'Breather',
-    },
-
     tags: [
       {
         type: String,
         lowercase: true,
         trim: true,
-      },
-    ],
-
-    attendees: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
       },
     ],
 

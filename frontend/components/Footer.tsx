@@ -1,6 +1,5 @@
 import React from 'react';
 import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   return (
@@ -82,7 +81,7 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="font-bold uppercase mb-2">About</h4>
             <ul className="space-y-1 text-white/50">
-              <li><Link to="/ourstory" className="hover:text-gold">Our Story </Link></li>
+              <li><a href="#">Our Story</a></li>
               <li><a href="#">Café Concept</a></li>
               <li><a href="#">Culture & Values</a></li>
             </ul>

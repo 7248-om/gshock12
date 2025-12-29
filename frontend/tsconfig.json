@@ -10,12 +10,10 @@
       "DOM.Iterable"
     ],
     "skipLibCheck": true,
-    
-    /* ERROR WAS HERE: 
-       We comment this out so TS automatically loads '@types/react' 
-    */
-    // "types": ["node", "vite/client"], 
-
+    "types": [
+      "node",
+      "vite/client"
+    ],
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",
