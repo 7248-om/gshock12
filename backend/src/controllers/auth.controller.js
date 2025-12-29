@@ -9,7 +9,8 @@ if (!admin.apps.length) {
   if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
     // Prefer env var if provided (e.g. in production)
     serviceAccountConfig = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-  } else {
+  }
+   else {
     // Fallback to local config file for development
     // NOTE: make sure this file is NOT committed with real credentials in a public repo
     // and is added to .gitignore if it contains secrets.

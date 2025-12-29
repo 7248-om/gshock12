@@ -13,6 +13,7 @@ import Art from './pages/Art';
 import ArtProduct from './pages/ArtProduct'; 
 import Admin from './pages/Admin';
 import About from './pages/About'
+import Why from './pages/Why';
 
 const App = () => {
   return (
@@ -31,6 +32,8 @@ const App = () => {
             <Route path="/franchise" element={<Franchise />} />
             <Route path="/art" element={<Art/>}/>
             <Route path="/art/:id" element={<ArtProduct/>}/> 
+            <Route path="/about" element={<About/>}/>
+            <Route path="/why" element={<Why/>}/>
           </Routes>
         </main>
 

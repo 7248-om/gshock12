@@ -7,7 +7,6 @@ export type WorkshopType = {
   time: string;
   price: number; // 0 = free
   image: string;
-  category: 'Breather' | 'Expert' | 'Foundations';
 };
 
 export type FaqItemType = {
