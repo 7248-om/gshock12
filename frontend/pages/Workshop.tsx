@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState, useMemo, useEffect } from 'react';
-import { WORKSHOPS, FAQS } from './constants';
+import { FAQS } from './constants';
 import { WorkshopType } from './types';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -39,10 +39,10 @@ const WorkshopCard: React.FC<{ workshop: WorkshopType }> = ({ workshop }) => {
       <div className="absolute inset-0 py-8 px-6 flex flex-col bg-cream opacity-0 translate-y-6 overflow-hidden transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
         <div className="flex flex-col items-center justify-center mb-2 gap-1">
           <div className="text-[18px] font-bold uppercase tracking-widest text-onyx/40">
-            {workshop.date.replace(/-/g, '.')}
+            {new Date(workshop.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.')}
           </div>
           <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.1em] text-onyx/80">
-            {workshop.time}
+            {new Date(workshop.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })} – {new Date(workshop.endTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
           </div>
         </div>
 
@@ -116,13 +116,39 @@ const FaqItem: React.FC<{ faq: { question: string; answer: string } }> = ({ faq 
 const Workshop: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Filter & Sort State
+  // State
+  const [workshops, setWorkshops] = useState<WorkshopType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [priceFilters, setPriceFilters] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('date-asc');
 
+  // Fetch workshops from backend
+  useEffect(() => {
+    const fetchWorkshops = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/api/workshops`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch workshops');
+        }
+        const data = await response.json();
+        setWorkshops(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching workshops:', err);
+        setError('Failed to load workshops. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkshops();
+  }, []);
+
   // Filtering & Sorting Logic
   const filteredAndSortedWorkshops = useMemo(() => {
-    let result = [...WORKSHOPS];
+    let result = [...workshops];
 
     // Filter by Price
     if (priceFilters.length > 0) {
@@ -141,15 +167,15 @@ const Workshop: React.FC = () => {
         case 'price-desc':
           return b.price - a.price;
         case 'date-desc':
-          return b.date.localeCompare(a.date);
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
         case 'date-asc':
         default:
-          return a.date.localeCompare(b.date);
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
       }
     });
 
     return result;
-  }, [priceFilters, sortBy]);
+  }, [workshops, priceFilters, sortBy]);
 
   // Handle price checkbox change
   const handlePriceFilterChange = (price: string) => {
@@ -216,7 +242,35 @@ const Workshop: React.FC = () => {
         </h2>
       </div>
 
+      {/* ERROR STATE */}
+      {error && (
+        <div className="py-12 px-6 max-w-[1600px] mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-3xl p-8 text-center">
+            <p className="text-red-700 font-medium">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-4 text-[10px] uppercase font-black tracking-widest text-gold hover:text-coffee transition-all"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* LOADING STATE */}
+      {loading && (
+        <div className="py-32 px-6 max-w-[1600px] mx-auto">
+          <div className="flex flex-col items-center justify-center">
+            <div className="animate-spin mb-6">
+              <div className="text-4xl">☕</div>
+            </div>
+            <p className="text-coffee font-medium">Brewing up some amazing workshops...</p>
+          </div>
+        </div>
+      )}
+
       {/* WORKSHOPS CONTENT AREA */}
+      {!loading && !error && (
       <section className="py-20 px-6 max-w-[1600px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-16">
           
@@ -363,7 +417,7 @@ const Workshop: React.FC = () => {
             {filteredAndSortedWorkshops.length > 0 ? (
               <div className="workshop-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-16">
                 {filteredAndSortedWorkshops.map(w => (
-                  <WorkshopCard key={w.id} workshop={w} />
+                  <WorkshopCard key={w._id || w.id} workshop={w} />
                 ))}
               </div>
             ) : (
@@ -382,17 +436,17 @@ const Workshop: React.FC = () => {
           </div>
         </div>
       </section>
+      )}
 
-        {/* FAQ */}
-       <section className="py-32 bg-[#FFCF71] px-6">
-       <div className="max-w-3xl  mx-auto">
-         {FAQS.map((faq, i) => (
+      {/* FAQ */}
+      <section className="py-32 bg-[#FFCF71] px-6">
+        <div className="max-w-3xl mx-auto">
+          {FAQS.map((faq, i) => (
             <FaqItem key={i} faq={faq} />
           ))}
         </div>
       </section>
 
-  
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(20px); }

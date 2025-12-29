@@ -192,6 +192,8 @@ const Admin: React.FC = () => {
 
   const handleAddWorkshop = async (workshop: Workshop) => {
     try {
+      // The image is already uploaded to ImageKit via media/upload endpoint
+      // Just send the workshop data with the image URL
       const response = await axiosInstance.post('/workshops', workshop);
       setWorkshops([response.data, ...workshops]);
     } catch (error: any) {
@@ -201,6 +203,8 @@ const Admin: React.FC = () => {
 
   const handleUpdateWorkshop = async (workshop: Workshop) => {
     try {
+      // The image is already uploaded to ImageKit via media/upload endpoint
+      // Just send the workshop data with the image URL
       const response = await axiosInstance.put(`/workshops/${workshop._id || workshop.id}`, workshop);
       setWorkshops(workshops.map(w => (w._id || w.id) === (workshop._id || workshop.id) ? response.data : w));
     } catch (error: any) {

@@ -19,13 +19,15 @@ const WorkshopManagement: React.FC<Props> = ({ workshops, onAdd, onUpdate, onDel
   const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || '/api';
   const [uploading, setUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   React.useEffect(() => {
     if (editing) {
-      setUploadedUrl(editing.imageUrl || editing.primaryImageUrl || null);
+      setUploadedUrl(editing.image || editing.imageUrl || editing.primaryImageUrl || null);
     } else {
       setUploadedUrl(null);
     }
+    setSelectedFile(null);
   }, [editing]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,30 +36,36 @@ const WorkshopManagement: React.FC<Props> = ({ workshops, onAdd, onUpdate, onDel
     setSubmitError(null);
     
     try {
-      const fd = new FormData(e.currentTarget);
-      const item: Workshop = {
-        _id: editing?._id,
-        id: editing?.id,
-        title: fd.get('title') as string,
-        description: fd.get('description') as string,
-        date: fd.get('startTime') as string,
-        startTime: fd.get('startTime') as string,
-        endTime: fd.get('endTime') as string,
-        category: fd.get('category') as WorkshopCategory,
-        price: parseFloat(fd.get('price') as string),
-        capacity: parseInt(fd.get('capacity') as string),
-        imageUrl: uploadedUrl || (fd.get('imageUrl') as string) || null,
-        attendees: editing?.attendees || [],
-      } as Workshop;
+      const formData = new FormData(e.currentTarget);
       
+      // Build workshop object from form data
+      const workshopData: any = {
+        title: formData.get('title') as string,
+        description: formData.get('description') as string,
+        date: formData.get('startTime') as string,
+        startTime: formData.get('startTime') as string,
+        endTime: formData.get('endTime') as string,
+        category: formData.get('category') as WorkshopCategory,
+        price: parseFloat(formData.get('price') as string),
+        capacity: parseInt(formData.get('capacity') as string),
+        image: uploadedUrl,
+        imageUrl: uploadedUrl,
+        primaryImageUrl: uploadedUrl,
+      };
+
       if (editing) {
-        await onUpdate(item);
+        workshopData._id = editing._id;
+        workshopData.id = editing.id;
+        workshopData.attendees = editing.attendees || [];
+        await onUpdate(workshopData);
       } else {
-        await onAdd(item);
+        await onAdd(workshopData);
       }
       
       setIsModalOpen(false);
       setEditing(null);
+      setSelectedFile(null);
+      setUploadedUrl(null);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Failed to save workshop');
     } finally {
@@ -186,8 +194,8 @@ const WorkshopManagement: React.FC<Props> = ({ workshops, onAdd, onUpdate, onDel
                   <label className="text-[10px] uppercase font-bold text-coffee-500 block mb-1">Workshop Image</label>
                   <div className="flex gap-4 items-start">
                     <div className="w-24 h-24 bg-coffee-950 border border-coffee-800 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
-                      {uploadedUrl || editing?.imageUrl || editing?.primaryImageUrl ? (
-                        <img src={uploadedUrl || editing?.imageUrl || editing?.primaryImageUrl || ''} alt="preview" className="w-full h-full object-cover" />
+                      {uploadedUrl ? (
+                        <img src={uploadedUrl} alt="preview" className="w-full h-full object-cover" />
                       ) : (
                         <ImageIcon className="text-coffee-700" size={32} />
                       )}
@@ -219,7 +227,9 @@ const WorkshopManagement: React.FC<Props> = ({ workshops, onAdd, onUpdate, onDel
                             }
 
                             const body = await res.json();
-                            setUploadedUrl(body.url || (body.media && body.media.url) || null);
+                            const imageUrl = body.url || (body.media && body.media.url) || null;
+                            setUploadedUrl(imageUrl);
+                            setSelectedFile(f);
                           } catch (err: any) {
                             setSubmitError(err.message || 'Upload failed');
                           } finally {
@@ -229,13 +239,12 @@ const WorkshopManagement: React.FC<Props> = ({ workshops, onAdd, onUpdate, onDel
                         className="text-sm text-coffee-500"
                       />
                       <input
+                        type="hidden"
                         name="imageUrl"
-                        placeholder="https://..."
-                        value={uploadedUrl ?? (editing?.imageUrl || editing?.primaryImageUrl || '')}
-                        onChange={(e) => setUploadedUrl(e.target.value || null)}
-                        className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 transition-colors outline-none"
+                        value={uploadedUrl || ''}
                       />
                       {uploading && <div className="text-xs text-coffee-500">Uploading…</div>}
+                      {uploadedUrl && !uploading && <div className="text-xs text-green-500">✓ Image uploaded</div>}
                     </div>
                   </div>
                 </div>
@@ -266,7 +275,7 @@ const WorkshopManagement: React.FC<Props> = ({ workshops, onAdd, onUpdate, onDel
                     <label className="text-[10px] uppercase font-bold text-coffee-500 block mb-1">Category</label>
                     <select 
                       name="category" 
-                      defaultValue={editing?.category || WorkshopCategory.FOUNDATION}
+                      defaultValue={editing?.category || WorkshopCategory.BREATHER}
                       className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 transition-colors outline-none"
                     >
                       {Object.values(WorkshopCategory).map(c => <option key={c} value={c}>{c}</option>)}

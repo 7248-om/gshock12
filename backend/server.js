@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const connectDB = require('./src/config/db');
 const routes = require('./src/routes');
 const { notFoundHandler, errorHandler } = require('./src/middleware/error.middleware');
+const { seedWorkshops } = require('./src/seeds/workshops.seed');
 
 const app = express();
 
@@ -30,6 +31,9 @@ async function startServer() {
   try {
     await connectDB();
 
+    // Seed workshops data on startup
+    await seedWorkshops();
+
     app.listen(PORT, () => {
       // eslint-disable-next-line no-console
       console.log(`Server is running on port ${PORT}`);
@@ -44,4 +48,3 @@ async function startServer() {
 startServer();
 
 module.exports = app;
-

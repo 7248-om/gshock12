@@ -1,13 +1,20 @@
 
 export type WorkshopType = {
-  id: string;
+  id?: string;
   _id?: string;
   title: string;
   description: string;
-  date: string; // YYYY-MM-DD
-  time: string;
+  date: string; // ISO date string
+  startTime: string; // ISO datetime string
+  endTime: string; // ISO datetime string
   price: number; // 0 = free
-  image: string;
+  image?: string;
+  imageUrl?: string;
+  primaryImageUrl?: string;
+  capacity?: number;
+  category?: WorkshopCategory;
+  tags?: string[];
+  attendees?: string[];
 };
 
 export type FaqItemType = {
@@ -89,17 +96,18 @@ export interface Artwork {
 }
 
 export interface Workshop {
-  id: string;
+  id?: string;
   _id?: string;
   title: string;
   description: string;
   startTime: string;
   endTime: string;
   date?: string;
-  category: WorkshopCategory;
+  category?: WorkshopCategory;
   price: number;
-  capacity: number;
-  attendees: string[]; // User IDs
+  capacity?: number;
+  attendees?: string[]; // User IDs
+  image?: string;
   imageUrl?: string;
   primaryImageUrl?: string;
   tags?: string[];
