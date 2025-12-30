@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Search, ShoppingBag, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../hooks/useCart';
+import { color } from 'three/tsl';
+
+// --- THEME CONSTANTS (Strict "Espresso & Cream" Palette) ---
+const THEME = {
+  espresso: '#3E2723',  // Dark Brown (Menu Background, Primary Text on Light)
+  bronze: '#966328',    // Medium Brown (Headings, Accents)
+  gold: '#D99A46',      // Gold/Orange (Hover States, Highlights)
+  cream: '#FFFCF2',     // Light Cream (Text on Dark, Page Background)
+  white: '#FFFFFF'
+};
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -72,91 +82,109 @@ const Header: React.FC = () => {
     },
   ];
 
+  // Helper styles for dynamic coloring
+  const headerTextColor = isMenuOpen || isScrolled ? THEME.cream : THEME.cream; 
+  // Note: If your hero section is light, you might need to toggle this. 
+  // For now, assuming dark hero or dark overlay, keeping text cream is safe.
+  
+  const headerBgStyle = isScrolled 
+    ? { backgroundColor: `${THEME.espresso}F2`, backdropFilter: 'blur(10px)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' } // F2 = 95% opacity
+    : { backgroundColor: 'transparent', color: headerTextColor };
+
   return (
     <>
       {/* HEADER BAR */}
       <header
-        className={`fixed top-[40px] left-0 w-full z-50 transition-all duration-300 ${
-          isScrolled || isMenuOpen ? 'text-cream' : 'text-cream'
-        } mix-blend-difference`}
+        className="fixed top-0 left-0 w-full z-50 transition-all duration-500 py-4"
+        style={headerBgStyle}
       >
-        <div className="container mx-auto px-4 md:px-8 py-6 flex justify-between items-center">
+        <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
           
           {/* LOGO */}
           <button
             onClick={() => closeAndNavigate('/')}
-            className="relative z-50 mix-blend-exclusion text-2xl font-oswald font-bold uppercase tracking-widest"
+            className="text-2xl md:text-3xl font-oswald font-bold uppercase tracking-[0.2em] transition-colors duration-300 hover:opacity-80"
+            style={{ color: isMenuOpen ? THEME.gold : headerTextColor }}
           >
             Rabuste
           </button>
 
           {/* RIGHT CONTROLS */}
-          <div className="flex items-center gap-6 relative z-50">
-            <div className="hidden md:flex items-center gap-2 border-b border-current pb-1">
-              <Search size={18} />
-              <input
-                type="text"
-                placeholder="Search"
-                className="bg-transparent border-none outline-none placeholder-current text-sm w-24 focus:w-40 transition-all"
-              />
-            </div>
-
+          <div className="flex items-center gap-4 md:gap-8">
+            {/* Desktop Links */}
             <button
               onClick={() => closeAndNavigate('/menu')}
-              className="hidden md:flex items-center gap-2 uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
+              className="hidden md:block uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
+              style={{ color: headerTextColor }}
             >
               Visit Café
             </button>
+
             {user?.role === 'admin' && (
               <button
                 onClick={() => closeAndNavigate('/admin')}
-                className="hidden md:flex items-center uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
+                className="hidden md:block uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
+                style={{ color: headerTextColor }}
               >
                 Admin
               </button>
             )}
+
             {user ? (
               <button
                 onClick={handleLogout}
-                className="hidden md:flex items-center uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
+                className="hidden md:block uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
+                style={{ color: headerTextColor }}
               >
                 Logout
               </button>
             ) : (
               <button
                 onClick={() => closeAndNavigate('/login')}
-                className="hidden md:flex items-center uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
+                className="hidden md:block uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
+                style={{ color: headerTextColor }}
               >
                 Login
               </button>
             )}
 
-
+            {/* Cart Icon */}
             <button
               onClick={() => {
                 closeAndNavigate('/menu');
                 setIsCartOpen(true);
               }}
-              className="flex items-center gap-2 uppercase text-sm font-bold tracking-wider hover:text-gold transition-colors"
+              className="flex items-center gap-2 uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
+              style={{ color: headerTextColor }}
             >
-              <ShoppingBag size={20} />
-              <span className="hidden md:inline">{totalItems}</span>
+              <div className="relative">
+                <ShoppingBag size={22} />
+                {totalItems > 0 && (
+                   <span className="absolute -top-2 -right-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2"
+                         style={{ backgroundColor: THEME.gold, color: THEME.espresso, ringColor: THEME.espresso }}>
+                     {totalItems}
+                   </span>
+                )}
+              </div>
+              <span className="hidden lg:inline">Cart</span>
             </button>
 
+            {/* HAMBURGER TOGGLE */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex flex-col justify-center gap-1.5 w-8 h-8 group"
+              className="relative w-10 h-10 flex flex-col justify-center items-center group transition-all"
               aria-label="Toggle Menu"
             >
-              {isMenuOpen ? (
-                <X size={32} />
-              ) : (
-                <>
-                  <span className="block h-[2px] w-full bg-current group-hover:bg-gold"></span>
-                  <span className="block h-[2px] w-full bg-current group-hover:bg-gold"></span>
-                  <span className="block h-[2px] w-full bg-current group-hover:bg-gold"></span>
-                </>
-              )}
+              <div className="flex flex-col gap-1.5 w-full items-end">
+                  <span className={`block h-[2px] transition-all duration-300 ${isMenuOpen ? 'w-full rotate-45 translate-y-[8px]' : 'w-full'}`}
+                        style={{ backgroundColor: isMenuOpen ? THEME.gold : headerTextColor }}></span>
+                  
+                  <span className={`block h-[2px] transition-all duration-300 ${isMenuOpen ? 'opacity-0' : 'w-2/3'}`}
+                        style={{ backgroundColor: headerTextColor }}></span>
+                  
+                  <span className={`block h-[2px] transition-all duration-300 ${isMenuOpen ? 'w-full -rotate-45 -translate-y-[8px]' : 'w-full'}`}
+                        style={{ backgroundColor: isMenuOpen ? THEME.gold : headerTextColor }}></span>
+              </div>
             </button>
           </div>
         </div>
@@ -164,28 +192,37 @@ const Header: React.FC = () => {
 
       {/* FULLSCREEN OVERLAY MENU */}
       <div
-        className={`fixed inset-0 bg-onyx z-40 transition-transform duration-500 ease-[cubic-bezier(0.7,0,0.3,1)] ${
-          isMenuOpen ? 'translate-y-0' : '-translate-y-full'
-        } text-cream overflow-y-auto`}
+        className={`fixed inset-0 z-40 transition-all duration-700 ease-[cubic-bezier(0.85,0,0.15,1)] ${
+          isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        } overflow-y-auto pt-24`}
+        style={{ backgroundColor: THEME.espresso, color: THEME.cream }}
       >
-        <div className="container mx-auto px-4 md:px-8 py-32 min-h-screen flex flex-col">
-          <div className="flex flex-col md:flex-row gap-8 md:gap-20">
+        <div className="container mx-auto px-6 md:px-12 py-12 min-h-screen flex flex-col">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
             
             {/* NAV SECTIONS */}
-            <div className="w-full md:w-2/3 flex flex-wrap gap-x-12 gap-y-8">
-              {navItems.map((item) => (
-                <div key={item.name} className="group">
-                  <h3 className="text-3xl md:text-5xl font-bold mb-4 group-hover:text-gold transition-colors">
+            <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-12">
+              {navItems.map((item, idx) => (
+                <div key={item.name} 
+                     className={`group transform transition-all duration-700 ${isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+                     style={{ transitionDelay: `${idx * 75}ms` }}
+                >
+                  <h3 className="text-3xl md:text-5xl font-oswald font-bold mb-6 transition-all cursor-default uppercase opacity-40 group-hover:opacity-100"
+                      style={{ color: THEME.cream }}> {/* Base color cream, hover effect handled by opacity */}
                     {item.name}
                   </h3>
 
-                  <div className="border-l border-gold pl-4">
-                    <ul className="flex flex-col gap-2">
+                  <div className="border-l-2 pl-6 space-y-3 transition-colors"
+                       style={{ borderColor: `${THEME.gold}40`, ':hover': { borderColor: THEME.gold } } as React.CSSProperties}>
+                    <ul className="flex flex-col gap-3">
                       {item.links.map((link) => (
                         <li key={link.label}>
                           <button
                             onClick={() => closeAndNavigate(link.path)}
-                            className="text-lg hover:text-gold/80 transition-colors text-left"
+                            className="text-lg md:text-xl font-sans transition-colors text-left font-light hover:translate-x-1 duration-300"
+                            style={{ color: THEME.cream }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = THEME.gold}
+                            onMouseLeave={(e) => e.currentTarget.style.color = THEME.cream}
                           >
                             {link.label}
                           </button>
@@ -198,40 +235,72 @@ const Header: React.FC = () => {
             </div>
 
             {/* SIDE INFO */}
-            <div className="w-full md:w-1/3 flex flex-col gap-8 text-cream/70">
+            <div className={`lg:col-span-4 flex flex-col gap-12 transition-all duration-1000 delay-300 ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}
+                 style={{ color: `${THEME.cream}99` }}> {/* 60% Opacity Cream */}
+              
               <div>
-                <h4 className="text-gold uppercase tracking-widest text-sm mb-4">
-                  Experience
+                <h4 className="font-oswald uppercase tracking-[0.2em] text-sm mb-6 border-b pb-2"
+                    style={{ color: THEME.gold, borderColor: `${THEME.gold}33` }}>
+                  The Experience
                 </h4>
-                <button onClick={() => closeAndNavigate('/menu')} className="block hover:text-white mb-2 text-left">
-                  Visit the Café
-                </button>
-                {user?.role === 'admin' && (
-                  <button onClick={() => closeAndNavigate('/admin')} className="block hover:text-white mb-2 text-left">
-                    Admin Dashboard
+                <div className="space-y-4 font-sans text-lg">
+                  <button onClick={() => closeAndNavigate('/menu')} className="block hover:text-white transition-colors text-left group">
+                    <span className="inline-block transition-transform group-hover:translate-x-2">Visit the Café</span>
                   </button>
-                )}
-                <button className="block hover:text-white text-left">
-                  Upcoming Workshops
-                </button>
+                  {user?.role === 'admin' && (
+                    <button onClick={() => closeAndNavigate('/admin')} className="block hover:text-white transition-colors text-left group">
+                      <span className="inline-block transition-transform group-hover:translate-x-2">Admin Dashboard</span>
+                    </button>
+                  )}
+                  <button onClick={() => closeAndNavigate('/workshop')} className="block hover:text-white transition-colors text-left group">
+                    <span className="inline-block transition-transform group-hover:translate-x-2">Upcoming Workshops</span>
+                  </button>
+                </div>
               </div>
 
               <div>
-                <h4 className="text-gold uppercase tracking-widest text-sm mb-4">
-                  Contact
+                <h4 className="font-oswald uppercase tracking-[0.2em] text-sm mb-6 border-b pb-2"
+                    style={{ color: THEME.gold, borderColor: `${THEME.gold}33` }}>
+                  Connect
                 </h4>
-                <a href="mailto:hello@rabuste.coffee" className="block hover:text-white mb-2">
-                  hello@rabuste.coffee
-                </a>
-                <button className="block hover:text-white text-left">
-                  Franchise Enquiries
-                </button>
+                <div className="space-y-4 font-sans text-lg">
+                  <a href="mailto:hello@rabuste.coffee" className="block hover:text-white transition-colors group">
+                     <span className="inline-block transition-transform group-hover:translate-x-2">hello@rabuste.coffee</span>
+                  </a>
+                  <button onClick={() => closeAndNavigate('/franchise')} className="block hover:text-white transition-colors text-left group">
+                    <span className="inline-block transition-transform group-hover:translate-x-2">Franchise Enquiries</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-8 space-y-4">
+                 <div className="flex gap-4">
+                    {['IG', 'TW', 'FB'].map((social) => (
+                      <div key={social} 
+                           className="w-12 h-12 rounded-full border flex items-center justify-center transition-all cursor-pointer hover:-translate-y-1"
+                           style={{ borderColor: `${THEME.cream}33`, color: THEME.cream }}
+                           onMouseEnter={(e) => {
+                             e.currentTarget.style.borderColor = THEME.gold;
+                             e.currentTarget.style.backgroundColor = THEME.gold;
+                             e.currentTarget.style.color = THEME.espresso;
+                           }}
+                           onMouseLeave={(e) => {
+                             e.currentTarget.style.borderColor = `${THEME.cream}33`;
+                             e.currentTarget.style.backgroundColor = 'transparent';
+                             e.currentTarget.style.color = THEME.cream;
+                           }}
+                      >
+                          <span className="text-xs font-bold">{social}</span>
+                      </div>
+                    ))}
+                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-auto pt-12 border-t border-cream/10">
-            <p className="text-4xl md:text-6xl font-oswald uppercase text-cream/20 leading-none">
+          <div className="mt-auto pt-24">
+            <p className="text-5xl md:text-9xl font-oswald uppercase leading-none tracking-tighter select-none opacity-10"
+               style={{ color: THEME.gold }}>
               Bold Coffee.<br />Bold Culture.
             </p>
           </div>
