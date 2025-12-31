@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Hero from '../components/Hero';
-import Ticker from '../components/Ticker';
+// import Ticker from '../components/Ticker';
 import EmailPopup from '../components/EmailPopup';
 import SplitSection from '../components/SplitSection';
 import DoubleSplit from '../components/DoubleSplit';
@@ -21,7 +21,7 @@ const Home: React.FC = () => {
     <>
       <EmailPopup isOpen={showPopup} onClose={() => setShowPopup(false)} />
 
-      <Ticker />
+      {/* <Ticker /> */}
 
       <Hero />
 

@@ -3,14 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Search, ShoppingBag, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../hooks/useCart';
-import { color } from 'three/tsl';
 
-// --- THEME CONSTANTS (Strict "Espresso & Cream" Palette) ---
+// --- THEME CONSTANTS ---
 const THEME = {
-  espresso: '#3E2723',  // Dark Brown (Menu Background, Primary Text on Light)
-  bronze: '#966328',    // Medium Brown (Headings, Accents)
-  gold: '#D99A46',      // Gold/Orange (Hover States, Highlights)
-  cream: '#FFFCF2',     // Light Cream (Text on Dark, Page Background)
+  espresso: '#3E2723',  // Dark Brown (Background)
+  bronze: '#966328',    // Medium Brown
+  gold: '#D99A46',      // Gold/Orange (Highlights)
+  cream: '#FFFCF2',     // Light Cream (Text)
   white: '#FFFFFF'
 };
 
@@ -82,21 +81,16 @@ const Header: React.FC = () => {
     },
   ];
 
-  // Helper styles for dynamic coloring
-  const headerTextColor = isMenuOpen || isScrolled ? THEME.cream : THEME.cream; 
-  // Note: If your hero section is light, you might need to toggle this. 
-  // For now, assuming dark hero or dark overlay, keeping text cream is safe.
-  
-  const headerBgStyle = isScrolled 
-    ? { backgroundColor: `${THEME.espresso}F2`, backdropFilter: 'blur(10px)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' } // F2 = 95% opacity
-    : { backgroundColor: `${THEME.espresso}F2`, backdropFilter: 'blur(10px)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' };
-
   return (
     <>
       {/* HEADER BAR */}
       <header
-        className="fixed top-0 left-0 w-full z-50 transition-all duration-500 py-4"
-        style={headerBgStyle}
+        // FIXED POSITION: Floats on top.
+        // SOLID COLOR: No transparency.
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 py-4 ${
+          isScrolled ? 'shadow-xl' : ''
+        }`}
+        style={{ backgroundColor: THEME.espresso }}
       >
         <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
           
@@ -104,7 +98,7 @@ const Header: React.FC = () => {
           <button
             onClick={() => closeAndNavigate('/')}
             className="text-2xl md:text-3xl font-oswald font-bold uppercase tracking-[0.2em] transition-colors duration-300 hover:opacity-80"
-            style={{ color: isMenuOpen ? THEME.gold : headerTextColor }}
+            style={{ color: isMenuOpen ? THEME.gold : THEME.cream }}
           >
             Rabuste
           </button>
@@ -115,7 +109,7 @@ const Header: React.FC = () => {
             <button
               onClick={() => closeAndNavigate('/menu')}
               className="hidden md:block uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
-              style={{ color: headerTextColor }}
+              style={{ color: THEME.cream }}
             >
               Visit Café
             </button>
@@ -124,7 +118,7 @@ const Header: React.FC = () => {
               <button
                 onClick={() => closeAndNavigate('/admin')}
                 className="hidden md:block uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
-                style={{ color: headerTextColor }}
+                style={{ color: THEME.cream }}
               >
                 Admin
               </button>
@@ -134,7 +128,7 @@ const Header: React.FC = () => {
               <button
                 onClick={handleLogout}
                 className="hidden md:block uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
-                style={{ color: headerTextColor }}
+                style={{ color: THEME.cream }}
               >
                 Logout
               </button>
@@ -142,7 +136,7 @@ const Header: React.FC = () => {
               <button
                 onClick={() => closeAndNavigate('/login')}
                 className="hidden md:block uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
-                style={{ color: headerTextColor }}
+                style={{ color: THEME.cream }}
               >
                 Login
               </button>
@@ -155,7 +149,7 @@ const Header: React.FC = () => {
                 setIsCartOpen(true);
               }}
               className="flex items-center gap-2 uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
-              style={{ color: headerTextColor }}
+              style={{ color: THEME.cream }}
             >
               <div className="relative">
                 <ShoppingBag size={22} />
@@ -177,13 +171,13 @@ const Header: React.FC = () => {
             >
               <div className="flex flex-col gap-1.5 w-full items-end">
                   <span className={`block h-[2px] transition-all duration-300 ${isMenuOpen ? 'w-full rotate-45 translate-y-[8px]' : 'w-full'}`}
-                        style={{ backgroundColor: isMenuOpen ? THEME.gold : headerTextColor }}></span>
+                        style={{ backgroundColor: isMenuOpen ? THEME.gold : THEME.cream }}></span>
                   
                   <span className={`block h-[2px] transition-all duration-300 ${isMenuOpen ? 'opacity-0' : 'w-2/3'}`}
-                        style={{ backgroundColor: headerTextColor }}></span>
+                        style={{ backgroundColor: THEME.cream }}></span>
                   
                   <span className={`block h-[2px] transition-all duration-300 ${isMenuOpen ? 'w-full -rotate-45 -translate-y-[8px]' : 'w-full'}`}
-                        style={{ backgroundColor: isMenuOpen ? THEME.gold : headerTextColor }}></span>
+                        style={{ backgroundColor: isMenuOpen ? THEME.gold : THEME.cream }}></span>
               </div>
             </button>
           </div>
@@ -208,7 +202,7 @@ const Header: React.FC = () => {
                      style={{ transitionDelay: `${idx * 75}ms` }}
                 >
                   <h3 className="text-3xl md:text-5xl font-oswald font-bold mb-6 transition-all cursor-default uppercase opacity-40 group-hover:opacity-100"
-                      style={{ color: THEME.cream }}> {/* Base color cream, hover effect handled by opacity */}
+                      style={{ color: THEME.cream }}>
                     {item.name}
                   </h3>
 
@@ -236,7 +230,7 @@ const Header: React.FC = () => {
 
             {/* SIDE INFO */}
             <div className={`lg:col-span-4 flex flex-col gap-12 transition-all duration-1000 delay-300 ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}
-                 style={{ color: `${THEME.cream}99` }}> {/* 60% Opacity Cream */}
+                 style={{ color: `${THEME.cream}99` }}>
               
               <div>
                 <h4 className="font-oswald uppercase tracking-[0.2em] text-sm mb-6 border-b pb-2"

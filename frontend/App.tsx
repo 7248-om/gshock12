@@ -26,7 +26,7 @@ const App = () => {
       {!isAuthPage && <Header />}
 
 
-        <main className="flex-grow pt-[120px]">
+        <main className="flex-grow ">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<Menu />} />
