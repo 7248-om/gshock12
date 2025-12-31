@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const Franchise = () => {
+const Franchise: React.FC = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -10,6 +10,7 @@ const Franchise = () => {
     investment: "",
     message: "",
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{
     type: "success" | "error";
@@ -23,19 +24,16 @@ const Franchise = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage(null);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/franchises`, {
+      await axios.post(`${API_BASE_URL}/franchises`, {
         name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
@@ -46,10 +44,10 @@ const Franchise = () => {
 
       setSubmitMessage({
         type: "success",
-        text: "Your franchise application has been submitted successfully! We'll be in touch soon.",
+        text:
+          "Your application has been submitted successfully. Our team will reach out shortly.",
       });
-      
-      // Reset form
+
       setFormData({
         fullName: "",
         email: "",
@@ -63,7 +61,7 @@ const Franchise = () => {
         type: "error",
         text:
           error.response?.data?.message ||
-          "Failed to submit application. Please try again.",
+          "Something went wrong. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -71,71 +69,42 @@ const Franchise = () => {
   };
 
   return (
-    <section className="w-full px-6 md:px-12 py-36 bg-cream-dark/40">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-32 items-start">
+    <div className="flex bg-white text-gray-900">
+      {/* LEFT — FORM */}
+      <div className="flex-1 px-6 lg:px-12 pt-32 pb-20">
+        <div className="w-full max-w-md mx-auto">
 
-        {/* LEFT CONTENT */}
-        <div className="relative flex flex-col justify-center pl-0 md:pl-8 animate-fade-up">
-
-          {/* vertical accent */}
-          <span className="absolute left-0 top-1 h-28 w-[2px] bg-coffee-primary/40 hidden md:block" />
-
-          <p className="text-[11px] tracking-[0.45em] uppercase text-coffee-dark/60 mb-10">
+          <p className="text-xs tracking-[0.35em] uppercase text-gray-400 mb-3">
             Franchise
           </p>
 
-          <h1 className="text-4xl md:text-5xl font-light leading-[1.12] mb-4 text-coffee-dark font-['Playfair_Display']">
-            Become a Part of <br />
-            the Rabuste Story
+          <h1 className="text-[38px] font-display text-[#4E342E] font-bold mb-6 leading-tight">
+            Grow with Rabuste
           </h1>
 
-          {/* animated underline */}
-          <div className="h-[2px] bg-coffee-primary/50 mb-10 animate-underline-draw" />
-
-          {/* description + points */}
-          <div className="animate-fade-up-delayed">
-            <p className="text-sm text-coffee-dark/70 max-w-md leading-relaxed mb-14">
-              Rabuste cafés are cultural spaces — where bold Robusta,
-              thoughtful design, and local art coexist. We partner with
-              people who believe in slow, intentional growth.
-            </p>
-
-            <div className="space-y-4 text-sm text-coffee-dark/70 tracking-wide">
-              <div>— Coffee-first, design-led brand</div>
-              <div>— Art-forward, community-driven cafés</div>
-              <div>— End-to-end operational & brand support</div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* RIGHT FORM */}
-        <div
-          className="relative bg-cream p-12 md:p-16 border border-coffee-dark/10
-                     shadow-[0_30px_80px_-40px_rgba(0,0,0,0.18)]
-                     animate-fade-up-delayed"
-        >
-          <h2 className="text-[11px] tracking-[0.4em] uppercase mb-16 text-coffee-dark">
-            Franchise Application
-          </h2>
+          <p className="text-gray-500 mb-12 font-medium leading-relaxed">
+            Rabuste cafés blend bold Robusta, thoughtful design, and
+            community-led spaces. We partner with people who believe
+            in intention over speed.
+          </p>
 
           {submitMessage && (
             <div
-              className={`mb-6 p-4 rounded-lg text-sm ${
+              className={`mb-8 p-4 rounded-2xl text-sm font-medium ${
                 submitMessage.type === "success"
-                  ? "bg-green-100 text-green-800 border border-green-300"
-                  : "bg-red-100 text-red-800 border border-red-300"
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : "bg-red-50 text-red-700 border border-red-200"
               }`}
             >
               {submitMessage.text}
             </div>
           )}
 
-          <form className="space-y-12" onSubmit={handleSubmit}>
-
-            <div className="group">
-              <label className="block text-[10px] tracking-widest uppercase mb-3 text-coffee-dark/60">
-                Full Name
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Full name */}
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-400 mb-2 block">
+                Full name
               </label>
               <input
                 type="text"
@@ -143,15 +112,16 @@ const Franchise = () => {
                 value={formData.fullName}
                 onChange={handleChange}
                 required
-                className="w-full bg-transparent border-b border-coffee-dark/25 py-2 text-sm
-                           focus:outline-none focus:border-coffee-primary
-                           transition-colors duration-300"
+                className="w-full py-4 px-5 bg-[#FFF5E1] rounded-2xl outline-none
+                           border border-transparent focus:border-[#EC9706]
+                           font-medium transition-all"
               />
             </div>
 
-            <div className="group">
-              <label className="block text-[10px] tracking-widest uppercase mb-3 text-coffee-dark/60">
-                Email Address
+            {/* Email */}
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-400 mb-2 block">
+                Email address
               </label>
               <input
                 type="email"
@@ -159,76 +129,78 @@ const Franchise = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full bg-transparent border-b border-coffee-dark/25 py-2 text-sm
-                           focus:outline-none focus:border-coffee-primary
-                           transition-colors duration-300"
+                className="w-full py-4 px-5 bg-[#FFF5E1] rounded-2xl outline-none
+                           border border-transparent focus:border-[#EC9706]
+                           font-medium transition-all"
               />
             </div>
 
-            <div className="group">
-              <label className="block text-[10px] tracking-widest uppercase mb-3 text-coffee-dark/60">
-                Phone Number
+            {/* Phone */}
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-400 mb-2 block">
+                Phone number
               </label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full bg-transparent border-b border-coffee-dark/25 py-2 text-sm
-                           focus:outline-none focus:border-coffee-primary
-                           transition-colors duration-300"
+                className="w-full py-4 px-5 bg-[#FFF5E1] rounded-2xl outline-none
+                           border border-transparent focus:border-[#EC9706]
+                           font-medium transition-all"
               />
             </div>
 
-            <div className="group">
-              <label className="block text-[10px] tracking-widest uppercase mb-3 text-coffee-dark/60">
-                Preferred City
+            {/* City */}
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-400 mb-2 block">
+                Preferred city
               </label>
               <input
                 type="text"
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                className="w-full bg-transparent border-b border-coffee-dark/25 py-2 text-sm
-                           focus:outline-none focus:border-coffee-primary
-                           transition-colors duration-300"
+                className="w-full py-4 px-5 bg-[#FFF5E1] rounded-2xl outline-none
+                           border border-transparent focus:border-[#EC9706]
+                           font-medium transition-all"
               />
             </div>
 
             {/* Investment */}
-            <div className="group">
-              <label className="block text-[10px] tracking-widest uppercase mb-3 text-coffee-dark/60">
-                Investment Capacity
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-400 mb-2 block">
+                Investment capacity
               </label>
               <select
                 name="investment"
                 value={formData.investment}
                 onChange={handleChange}
-                className="w-full bg-cream border-b border-coffee-dark/25 py-2 text-sm
-                           focus:outline-none focus:border-coffee-primary
-                           transition-colors duration-300"
+                className="w-full py-4 px-5 bg-[#FFF5E1] rounded-2xl outline-none
+                           border border-transparent focus:border-[#EC9706]
+                           font-medium transition-all"
               >
                 <option value="">Select range</option>
-                <option>₹20–30 Lakhs</option>
-                <option>₹30–50 Lakhs</option>
-                <option>₹50+ Lakhs</option>
+                <option>₹20–30 lakhs</option>
+                <option>₹30–50 lakhs</option>
+                <option>₹50+ lakhs</option>
               </select>
             </div>
 
             {/* Message */}
-            <div className="group">
-              <label className="block text-[10px] tracking-widest uppercase mb-3 text-coffee-dark/60">
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-400 mb-2 block">
                 Why Rabuste?
               </label>
               <textarea
                 name="message"
-                rows={3}
+                rows={4}
                 value={formData.message}
                 onChange={handleChange}
-                className="w-full bg-transparent border-b border-coffee-dark/25 py-2 text-sm
-                           focus:outline-none focus:border-coffee-primary
-                           transition-colors duration-300 resize-none"
-                placeholder="Tell us why you're interested in partnering with Rabuste..."
+                placeholder="Tell us why you are interested in partnering with Rabuste."
+                className="w-full py-4 px-5 bg-[#FFF5E1] rounded-2xl outline-none
+                           border border-transparent focus:border-[#EC9706]
+                           font-medium transition-all resize-none"
               />
             </div>
 
@@ -236,22 +208,54 @@ const Franchise = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="mt-20 w-full py-4 border border-coffee-dark text-coffee-dark
-                         uppercase tracking-[0.38em] text-[11px]
-                         hover:bg-coffee-primary hover:text-white hover:border-coffee-primary
-                         hover:-translate-y-[1px] active:translate-y-0
-                         transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-8 bg-[#EC9706] text-white py-4 rounded-2xl
+                         font-bold text-lg shadow-lg hover:bg-[#B57B24]
+                         transition-all active:scale-[0.98]
+                         disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Submitting..." : "Submit Application"}
+              {isSubmitting ? "Submitting…" : "Submit application"}
             </button>
-
           </form>
         </div>
-
       </div>
-    </section>
+
+      {/* RIGHT — BRAND STORY */}
+      <div className="hidden lg:flex lg:w-1/2 p-8 pt-32">
+        <div className="relative w-full min-h-[720px] rounded-[40px] overflow-hidden shadow-2xl">
+          <img
+            src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1600&q=80"
+            alt="Rabuste café interior"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-[#4E342E]/65" />
+
+          <div className="relative z-10 h-full flex flex-col justify-between p-14 text-white">
+            <div>
+              <p className="text-sm tracking-widest uppercase text-white/70 mb-6">
+                Franchise philosophy
+              </p>
+
+              <h2 className="text-4xl font-display leading-tight mb-6">
+                Built for people<br />who value intention
+              </h2>
+
+              <p className="text-white/80 max-w-md font-light leading-relaxed">
+                Rabuste is not a fast-scaling coffee chain. It is a coffee-first,
+                design-led brand built around community, culture, and craft.
+              </p>
+            </div>
+
+            <div className="space-y-4 text-sm text-white/85 font-medium">
+              <div>• Premium Robusta-only sourcing</div>
+              <div>• Art-forward, locally rooted cafés</div>
+              <div>• Long-term operational and brand support</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
 export default Franchise;
-
