@@ -29,12 +29,12 @@ export const CoffeeMenu: React.FC<CoffeeMenuProps> = ({ onAddToCart }) => {
             id: p._id,
             name: p.name,
             description: p.description,
-            price: `$${p.price.toFixed(2)}`,
+            price: `₹${p.price}`,
             imageUrl: p.imageUrl,
-            // Backend model does not currently support tags/category; default category
-            tags: [],
-            category: MenuCategory.COFFEE,
+            tags: p.tags || [],
+            category: p.category as MenuCategory,
           }));
+
 
           setMenuItems(mapped);
         }

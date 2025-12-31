@@ -19,7 +19,8 @@ const productSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        default: 'Coffee',
+        enum: ['Coffee', 'Dessert', 'Savory Bites'],
+        required: true,
     },
     stockStatus: {
         type: String,
