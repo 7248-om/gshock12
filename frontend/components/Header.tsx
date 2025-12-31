@@ -103,7 +103,7 @@ const Header: React.FC = () => {
 
           {/* RIGHT: WORDMARK */}
           <img
-            src="https://ik.imagekit.io/manofcentury/gshock/products/Rabuste_logo_iNHcgLQ4z.png"
+            src="https://ik.imagekit.io/btpcp9tvm/GShock/Rabuste%20logo.png"
             alt="Rabuste Wordmark"
             loading="eager"
             className="h-8 md:h-10 object-contain"
