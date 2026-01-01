@@ -46,7 +46,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           id: item.product._id,
           name: item.product.name,
           description: item.product.description,
-          price: `$${item.product.price.toFixed(2)}`,
+          price: `₹${item.product.price.toFixed(2)}`,
           imageUrl: item.product.imageUrl,
           // Backend doesn't currently store tags/category; default to Coffee for now
           tags: [],
@@ -163,8 +163,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const totalPrice = cartItems.reduce((acc, item) => {
-    const priceNum = parseFloat(item.price.replace('$', ''));
-    return acc + priceNum * item.quantity;
+    // Extract numeric price from string like "₹100.00" or "$100.00"
+    const priceStr = (item.price || '0').replace(/[$₹\s]/g, '').trim();
+    const priceNum = parseFloat(priceStr);
+    return acc + (isNaN(priceNum) ? 0 : priceNum * item.quantity);
   }, 0);
 
   const value: CartContextType = {

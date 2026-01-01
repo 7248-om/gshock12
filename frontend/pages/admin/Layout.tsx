@@ -9,7 +9,8 @@ import {
   Users,
   Megaphone,
   Briefcase,
-  GraduationCap
+  GraduationCap,
+  ShoppingBag
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -43,6 +44,9 @@ const Layout: React.FC<LayoutProps> = ({ children, isStoreOpen, onToggleStore })
           </NavLink>
           <NavLink to="/admin/orders" className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-coffee-100 text-coffee-950 shadow-lg shadow-coffee-900/50' : 'text-coffee-500 hover:text-coffee-100 hover:bg-coffee-900'}`}>
             <ClipboardList size={18} /> Orders
+          </NavLink>
+          <NavLink to="/admin/payment-orders" className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-coffee-100 text-coffee-950 shadow-lg shadow-coffee-900/50' : 'text-coffee-500 hover:text-coffee-100 hover:bg-coffee-900'}`}>
+            <ShoppingBag size={18} /> Payments
           </NavLink>
           <NavLink to="/admin/gallery" className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-coffee-100 text-coffee-950 shadow-lg shadow-coffee-900/50' : 'text-coffee-500 hover:text-coffee-100 hover:bg-coffee-900'}`}>
             <Palette size={18} /> Art Gallery

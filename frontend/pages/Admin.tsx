@@ -5,6 +5,7 @@ import Layout from './admin/Layout';
 import Dashboard from './admin/Dashboard';
 import MenuManagement from './admin/MenuManagement';
 import OrderManagement from './admin/OrderManagement';
+import AdminOrders from './admin/AdminOrders';
 import ArtGalleryManagement from './admin/ArtGalleryManagement';
 import WorkshopManagement from './admin/WorkshopManagement';
 import FranchiseManagement from './admin/FranchiseManagement';
@@ -284,6 +285,10 @@ const Admin: React.FC = () => {
               onUpdateStatus={handleUpdateOrderStatus} 
             />
           } 
+        />
+        <Route 
+          path="/payment-orders" 
+          element={<AdminOrders />} 
         />
         <Route 
           path="/gallery" 

@@ -10,8 +10,21 @@ const { notFoundHandler, errorHandler } = require('./src/middleware/error.middle
 
 const app = express();
 
+// CORS configuration for Firebase auth
+const corsOptions = {
+  origin: [
+    'http://localhost:5173', // Vite default dev port
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000',
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan('dev'));
 

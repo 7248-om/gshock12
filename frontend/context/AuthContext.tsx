@@ -37,10 +37,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Called after Firebase login to sync/create user in backend and get backend JWT
   const syncWithBackend = async (idToken: string) => {
     try {
-      console.log('Syncing with backend. API_BASE_URL:', API_BASE_URL);
+      console.log('🔄 Syncing with backend. API_BASE_URL:', API_BASE_URL);
+      console.log('📤 Sending idToken to:', `${API_BASE_URL}/auth/login`);
+      
       const response = await axios.post(`${API_BASE_URL}/auth/login`, {
         idToken,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
+
+      console.log('📥 Backend response:', response.data);
 
       const { user: backendUser, token: backendToken } = response.data;
 
@@ -48,18 +56,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('Invalid response from backend: missing user or token');
       }
 
-      console.log('Backend sync successful. User:', backendUser);
+      console.log('✅ Backend sync successful. User:', backendUser);
       setUser(backendUser);
       setToken(backendToken);
       localStorage.setItem('authToken', backendToken);
     } catch (error) {
-      console.error('Failed to sync auth with backend:', error);
+      console.error('❌ Failed to sync auth with backend:', error);
       
       // Log more details for debugging
       if (axios.isAxiosError(error)) {
-        console.error('Backend error response:', error.response?.data);
-        console.error('Backend error status:', error.response?.status);
-        console.error('Backend error message:', error.message);
+        console.error('❌ Backend error response:', error.response?.data);
+        console.error('❌ Backend error status:', error.response?.status);
+        console.error('❌ Backend error message:', error.message);
+        console.error('❌ Backend request URL:', error.config?.url);
+        console.error('❌ Backend request headers:', error.config?.headers);
       }
       
       setUser(null);
@@ -86,21 +96,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    console.log('🔐 Setting up auth state listener...');
     const unsubscribe = onAuthStateChanged(auth, async (userCredential) => {
+      console.log('🔍 Auth state changed. User:', userCredential?.email || 'None');
       setFirebaseUser(userCredential);
 
       if (userCredential) {
         try {
           const idToken = await userCredential.getIdToken();
-          console.log('Firebase user authenticated. Email:', userCredential.email);
+          console.log('✅ Firebase user authenticated. Email:', userCredential.email);
+          console.log('🔑 ID Token length:', idToken.length);
           await syncWithBackend(idToken);
         } catch (error) {
-          console.error('Failed to sync with backend after Firebase auth:', error);
+          console.error('❌ Failed to sync with backend after Firebase auth:', error);
           setUser(null);
           setToken(null);
           localStorage.removeItem('authToken');
         }
       } else {
+        console.log('⏹️ User logged out');
         setUser(null);
         setToken(null);
         localStorage.removeItem('authToken');
@@ -115,13 +129,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginWithGoogle = async () => {
     setLoading(true);
     try {
+      console.log('🔵 Starting Google Sign-In...');
+      console.log('📱 Auth instance:', auth);
+      console.log('🔑 Google provider configured');
+      
       const result = await signInWithPopup(auth, googleProvider);
       if (!result.user) {
         throw new Error('No user returned from Google sign-in');
       }
+      console.log('✅ Google Sign-In successful:', result.user.email);
+      console.log('👤 Firebase UID:', result.user.uid);
       // onAuthStateChanged will handle backend sync
-    } catch (error) {
-      console.error('Firebase Google login failed:', error);
+    } catch (error: any) {
+      console.error('❌ Firebase Google login failed:', error);
+      console.error('Error code:', error?.code);
+      console.error('Error message:', error?.message);
+      
       setUser(null);
       setToken(null);
       localStorage.removeItem('authToken');

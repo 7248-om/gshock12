@@ -113,7 +113,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div className="px-8 py-8 border-t border-gray-100 bg-gray-50/50">
               <div className="flex justify-between items-end mb-6">
                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Subtotal</span>
-                <span className="text-xl font-black tracking-tighter">${totalPrice.toFixed(2)}</span>
+                <span className="text-xl font-black tracking-tighter">₹{(totalPrice || 0).toFixed(2)}</span>
               </div>
               <button
                 onClick={onCheckout}

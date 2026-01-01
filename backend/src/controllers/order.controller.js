@@ -1,8 +1,9 @@
 const Order = require('../models/order.model');
 
+// Get all orders (admin only)
 async function getOrders(req, res) {
     try {
-        const orders = await Order.find().populate('user').populate('items.itemId');
+        const orders = await Order.find().populate('user').populate('items.itemId').sort({ createdAt: -1 });
         res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -45,12 +46,35 @@ async function updateOrder(req, res) {
 
 async function updateOrderStatus(req, res) {
     try {
-        const { status } = req.body;
-        const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true }).populate('user').populate('items.itemId');
+        const { orderStatus } = req.body;
+        
+        if (!['pending', 'processing', 'shipped', 'delivered', 'cancelled'].includes(orderStatus)) {
+            return res.status(400).json({ message: 'Invalid status. Must be pending, processing, shipped, delivered, or cancelled.' });
+        }
+
+        const order = await Order.findByIdAndUpdate(
+            req.params.id,
+            { orderStatus },
+            { new: true }
+        ).populate('user').populate('items.itemId');
+        
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
         res.status(200).json(order);
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+}
+
+// Get orders for current user
+async function getMyOrders(req, res) {
+    try {
+        const orders = await Order.find({ user: req.user._id })
+            .populate('user')
+            .populate('items.itemId')
+            .sort({ createdAt: -1 });
+        res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
@@ -75,4 +99,5 @@ module.exports = {
     updateOrder,
     updateOrderStatus,
     deleteOrder,
+    getMyOrders,
 };

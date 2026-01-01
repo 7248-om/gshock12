@@ -10,6 +10,7 @@ const workshopRoutes = require('./workshop.routes');
 const mediaRoutes = require('./media.routes');
 const orderRoutes = require('./order.routes');
 const franchiseRoutes = require('./franchise.routes');
+const paymentRoutes = require('./payment.routes');
 
 const router = express.Router();
 
@@ -23,5 +24,6 @@ router.use('/workshops', workshopRoutes);
 router.use('/media', mediaRoutes);
 router.use('/orders', orderRoutes);
 router.use('/franchises', franchiseRoutes);
+router.use('/payments', paymentRoutes);
 
 module.exports = router;
