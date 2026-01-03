@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ShoppingBag, X, User, LogOut } from 'lucide-react';
+import { Search, ShoppingBag, X, User, LogOut, Package } from 'lucide-react'; // Added Package icon
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../hooks/useCart';
 
@@ -56,7 +56,7 @@ const Header: React.FC = () => {
       name: 'Art',
       links: [
         { label: 'Gallery', path: '/art' },
-        { label: 'Featured Artists', path: '/art' },
+        { label: 'Featured Artists', path: '/artist' },
       ],
     },
     {
@@ -156,6 +156,7 @@ const Header: React.FC = () => {
                     <div className="px-4 py-3 border-b" style={{ borderColor: `${THEME.gold}33` }}>
                       <p className="text-xs uppercase tracking-widest font-bold" style={{ color: THEME.gold }}>Account</p>
                     </div>
+                    
                     <button
                       onClick={() => {
                         closeAndNavigate('/profile');
@@ -169,6 +170,22 @@ const Header: React.FC = () => {
                       <User size={16} />
                       <span>My Profile</span>
                     </button>
+
+                    {/* ADDED: My Orders Button */}
+                    <button
+                      onClick={() => {
+                        closeAndNavigate('/orders');
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm transition-colors flex items-center gap-3 hover:bg-opacity-80"
+                      style={{ color: THEME.cream }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${THEME.gold}20`}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <Package size={16} />
+                      <span>My Orders</span>
+                    </button>
+
                     <button
                       onClick={() => {
                         handleLogout();
@@ -300,9 +317,15 @@ const Header: React.FC = () => {
                     </button>
                   )}
                   {user && (
+                    <>
                     <button onClick={() => closeAndNavigate('/profile')} className="block hover:text-white transition-colors text-left group">
                       <span className="inline-block transition-transform group-hover:translate-x-2">My Profile</span>
                     </button>
+                    {/* ADDED: My Orders Link in Side Info */}
+                    <button onClick={() => closeAndNavigate('/orders')} className="block hover:text-white transition-colors text-left group">
+                      <span className="inline-block transition-transform group-hover:translate-x-2">My Orders</span>
+                    </button>
+                    </>
                   )}
                   <button onClick={() => closeAndNavigate('/workshop')} className="block hover:text-white transition-colors text-left group">
                     <span className="inline-block transition-transform group-hover:translate-x-2">Upcoming Workshops</span>

@@ -58,9 +58,16 @@ const ArtCard: React.FC<ArtCardProps> = ({ artwork }) => {
           </span>
         </div>
 
-        <p className="mt-2 text-[10px] uppercase tracking-widest font-bold text-[#3E2723]/60">
-          {artwork.artist} | {artwork.medium} | {artwork.dimensions}
-        </p>
+              <div className="mt-2 text-[10px] uppercase tracking-widest font-bold text-[#3E2723]/60">
+        <Link 
+          to={`/artist/${encodeURIComponent(artwork.artist)}`} 
+          className="hover:text-[#3E2723] hover:underline transition-colors"
+          onClick={(e) => e.stopPropagation()} // Prevent triggering the card's main click
+        >
+          {artwork.artist}
+        </Link>
+        <span className="mx-1">|</span> {artwork.medium}
+      </div>
       </div>
     </Link>
   );

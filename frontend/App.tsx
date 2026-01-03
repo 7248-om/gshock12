@@ -16,6 +16,7 @@ import Why from './pages/Why';
 import FlavorStrength from './pages/FlavourStrength';
 import WhyRobusta from './pages/WhyRobusta';
 import Profile from './pages/Profile';
+import Artist from './pages/Artist';
 const App = () => {
   const location = useLocation();
   const isAuthPage = location.pathname.startsWith('/login') || location.pathname.startsWith('/admin');
@@ -45,6 +46,7 @@ const App = () => {
             <Route path="/flavor" element={<FlavorStrength/>}/>
             <Route path="/whyrob" element={<WhyRobusta/>}/>
             <Route path="/profile" element={<Profile/>}/>
+            <Route path="/artist/:id" element={<Artist/>}/>
           </Routes>
         </main>
 

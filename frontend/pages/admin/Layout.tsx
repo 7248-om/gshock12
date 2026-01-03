@@ -12,6 +12,7 @@ import {
   GraduationCap,
   ShoppingBag,
   Film,
+  UserCheck,
   Lightbulb
 } from 'lucide-react';
 
@@ -52,6 +53,9 @@ const Layout: React.FC<LayoutProps> = ({ children, isStoreOpen, onToggleStore })
           </NavLink>
           <NavLink to="/admin/gallery" className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-coffee-100 text-coffee-950 shadow-lg shadow-coffee-900/50' : 'text-coffee-500 hover:text-coffee-100 hover:bg-coffee-900'}`}>
             <Palette size={18} /> Art Gallery
+          </NavLink>
+          <NavLink to="/admin/artists" className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-coffee-100 text-coffee-950 shadow-lg shadow-coffee-900/50' : 'text-coffee-500 hover:text-coffee-100 hover:bg-coffee-900'}`}>
+            <UserCheck size={18} /> Artists
           </NavLink>
           <NavLink to="/admin/workshops" className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-coffee-100 text-coffee-950 shadow-lg shadow-coffee-900/50' : 'text-coffee-500 hover:text-coffee-100 hover:bg-coffee-900'}`}>
             <GraduationCap size={18} /> Workshops

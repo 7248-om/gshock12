@@ -13,6 +13,9 @@ import MarketingCMS from './admin/MarketingCMS';
 import UserManagement from './admin/UserManagement';
 import ReelManagement from './admin/ReelManagement';
 import SuggestionManagement from './admin/SuggestionManagement';
+// 1. IMPORT THE ARTIST COMPONENT 👇
+import ArtistManagement from './admin/ArtistManagement';
+
 import Header from '@/components/Header';
 
 import { 
@@ -34,7 +37,6 @@ const Admin: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading, token } = useAuth();
 
-  // --- MOVED UP: State declarations must be at the top level ---
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -53,7 +55,6 @@ const Admin: React.FC = () => {
     isStoreOpen: true
   });
 
-  // Axios instance - recreate when token changes
   const axiosInstance = useMemo(() => axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -61,9 +62,6 @@ const Admin: React.FC = () => {
     },
   }), [token]);
 
-  // --- Hooks must run regardless of loading state ---
-  
-  // Frontend guard
   useEffect(() => {
     if (loading) return;
 
@@ -74,9 +72,7 @@ const Admin: React.FC = () => {
     }
   }, [user, loading, navigate]);
 
-  // Fetch all data
   useEffect(() => {
-    // Only fetch if we have a token and are not in the initial auth loading state
     if (!token || loading) return;
 
     const fetchAllData = async () => {
@@ -125,9 +121,8 @@ const Admin: React.FC = () => {
     };
 
     fetchAllData();
-  }, [token, loading]); // Added loading to dependencies
+  }, [token, loading]);
 
-  // --- Handlers ---
   const handleToggleStore = () => {
     setIsStoreOpen(!isStoreOpen);
     setStats(prev => ({ ...prev, isStoreOpen: !isStoreOpen }));
@@ -198,8 +193,6 @@ const Admin: React.FC = () => {
 
   const handleAddWorkshop = async (workshop: Workshop) => {
     try {
-      // The image is already uploaded to ImageKit via media/upload endpoint
-      // Just send the workshop data with the image URL
       const response = await axiosInstance.post('/workshops', workshop);
       setWorkshops([response.data, ...workshops]);
     } catch (error: any) {
@@ -209,8 +202,6 @@ const Admin: React.FC = () => {
 
   const handleUpdateWorkshop = async (workshop: Workshop) => {
     try {
-      // The image is already uploaded to ImageKit via media/upload endpoint
-      // Just send the workshop data with the image URL
       const response = await axiosInstance.put(`/workshops/${workshop._id || workshop.id}`, workshop);
       setWorkshops(workshops.map(w => (w._id || w.id) === (workshop._id || workshop.id) ? response.data : w));
     } catch (error: any) {
@@ -245,17 +236,14 @@ const Admin: React.FC = () => {
     }
   };
 
-  // --- MOVED DOWN: Conditional returns must happen AFTER all hooks ---
-  
   if (loading || !user || user.role !== 'admin') {
-    return null; // Or a loading spinner/unauthorized component
+    return null; 
   }
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-coffee-950">
         <div className="text-center">
-          {/* Updated spinner color to match new theme */}
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-coffee-400 mx-auto mb-4"></div>
           <p className="text-coffee-500">Loading admin dashboard...</p>
         </div>
@@ -302,6 +290,11 @@ const Admin: React.FC = () => {
               onDelete={handleDeleteArtwork}
             />
           } 
+        />
+        {/* 2. ADD THE ARTIST ROUTE 👇 */}
+        <Route 
+          path="/artists" 
+          element={<ArtistManagement />} 
         />
         <Route 
           path="/workshops" 
