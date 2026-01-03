@@ -98,7 +98,7 @@ const SuggestionSection: React.FC = () => {
   }
 
   return (
-    <section className="py-16 px-6" style={{ backgroundColor: THEME.white }}>
+    <section className="py-16 px-6 bg-cream">
       <div className="max-w-7xl mx-auto">
         {/* HEADER */}
         <div className="mb-12">

@@ -27,7 +27,8 @@ const Home: React.FC = () => {
       {/* <Ticker /> */}
 
       <Hero />
-
+      <SuggestionSection /> 
+      <GridMenu />
       <SplitSection
         alignment="left"
         mediaUrl="https://ik.imagekit.io/btpcp9tvm/GShock/rabuste-coffee-pic.jpeg"
@@ -38,7 +39,7 @@ const Home: React.FC = () => {
         ctaLink="/about"
       />
 
-      <DoubleSplit 
+      {/* <DoubleSplit 
         left={{
           mediaUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93",
           mediaType: "image",
@@ -53,7 +54,7 @@ const Home: React.FC = () => {
           text: "Designed for modern lifestyles, our café delivers bold coffee quickly — without losing the warmth of a cozy, cultural space.",
           link: "#"
         }}
-      />
+      /> */}
 
       {/* <Accolades /> */}
 
@@ -67,7 +68,7 @@ const Home: React.FC = () => {
         ctaLink="/art"
         backgroundColor="bg-cream"
       />
-
+      
       <DoubleSplit 
         left={{
           mediaUrl: "https://ik.imagekit.io/btpcp9tvm/GShock/workshop.png",
@@ -86,6 +87,7 @@ const Home: React.FC = () => {
         }}
       />
 
+      
       <SplitSection
         alignment="left"
         mediaUrl="https://ik.imagekit.io/btpcp9tvm/GShock/inside-cozy.png"
@@ -96,7 +98,6 @@ const Home: React.FC = () => {
         ctaLink="/about"
         backgroundColor="bg-cream"
       />
-
       {/* <SplitSection
         alignment="left"
         mediaUrl="https://images.unsplash.com/photo-1507919985931-6d98f5b4a04c"
@@ -119,16 +120,7 @@ const Home: React.FC = () => {
         backgroundColor="bg-cream"
       /> */}
 
-      <SplitSection
-        alignment="right"
-        mediaUrl="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9"
-        mediaType="image"
-        title="AI-Enhanced Café Experience"
-        text="Rabuste explores how AI can enhance café experiences — from personalized coffee discovery to intelligent art and workshop recommendations."
-        ctaText="See How AI Fits In"
-        ctaLink="#"
-        backgroundColor="bg-cream"
-      />
+      
 
       
 
@@ -143,18 +135,9 @@ const Home: React.FC = () => {
         backgroundColor="bg-cream-dark"
       /> */}
 
-      <SplitSection2
-        alignment="center"
-        mediaUrl="https://images.unsplash.com/photo-1521017432531-fbd92d768814"
-        mediaType="image"
-        title="Built for Growth"
-        text="Rabuste is a compact, scalable café model designed for expansion. We’re opening franchise opportunities for partners who believe in bold coffee and meaningful experiences."
-        ctaText="Explore Franchise Opportunities"
-        ctaLink="/franchise"
-        theme="dark"
-      />
+      
       <Highlights />
-      <SuggestionSection />
+      
       {/* <Arches /> */}
       {/* <SplitSection
         alignment="left"
@@ -196,7 +179,27 @@ const Home: React.FC = () => {
         }}
       /> */}
 
-      <GridMenu />
+      
+      <SplitSection
+        alignment="right"
+        mediaUrl="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9"
+        mediaType="image"
+        title="AI-Enhanced Café Experience"
+        text="Rabuste explores how AI can enhance café experiences — from personalized coffee discovery to intelligent art and workshop recommendations."
+        ctaText="See How AI Fits In"
+        ctaLink="#"
+        backgroundColor="bg-cream"
+      />
+      <SplitSection2
+        alignment="center"
+        mediaUrl="https://images.unsplash.com/photo-1521017432531-fbd92d768814"
+        mediaType="image"
+        title="Built for Growth"
+        text="Rabuste is a compact, scalable café model designed for expansion. We’re opening franchise opportunities for partners who believe in bold coffee and meaningful experiences."
+        ctaText="Explore Franchise Opportunities"
+        ctaLink="/franchise"
+        theme="dark"
+      />
     </>
   );
 };
