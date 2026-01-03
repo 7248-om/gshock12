@@ -69,7 +69,7 @@ const Header: React.FC = () => {
     {
       name: 'Franchise',
       links: [
-        { label: 'The Opportunity', path: '/' },
+        { label: 'The Opportunity', path: '/franchise-landing' },
         { label: 'Partner With Us', path: '/franchise' },
       ],
     },

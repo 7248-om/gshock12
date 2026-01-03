@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Payment from './pages/Payment';
 import PaymentSuccess from './pages/PaymentSuccess';
 import Franchise from './pages/Franchise';
+import FranchiseLanding from './pages/FranchiseLanding';
 import Art from './pages/Art';
 import ArtProduct from './pages/ArtProduct'; 
 import Admin from './pages/Admin';
@@ -40,6 +41,7 @@ const App = () => {
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/workshop" element={<Workshop/>}/>
             <Route path="/franchise" element={<Franchise />} />
+            <Route path="/franchise-landing" element={<FranchiseLanding />} />
             <Route path="/art" element={<Art/>}/>
             <Route path="/art/:id" element={<ArtProduct/>}/> 
             <Route path="/about" element={<About/>}/>
