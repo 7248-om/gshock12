@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm install",
+  "buildCommand": "npm install && npm start",
   "env": {
     "PORT": "3001"
   },
@@ -12,11 +12,7 @@
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/server.js"
-    },
-    {
-      "source": "/health",
+      "source": "/(.*)",
       "destination": "/server.js"
     }
   ],

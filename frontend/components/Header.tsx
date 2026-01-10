@@ -117,7 +117,7 @@ const Header: React.FC = () => {
           <div className="flex items-center gap-4 md:gap-8">
             {/* Desktop Links */}
             <button
-              onClick={() => closeAndNavigate('/menu')}
+              onClick={() => closeAndNavigate('/visit-cafe')}
               className="hidden md:block uppercase text-xs font-bold tracking-widest transition-colors font-oswald hover:text-opacity-80"
               style={{ color: THEME.cream }}
             >
@@ -308,7 +308,7 @@ const Header: React.FC = () => {
                   The Experience
                 </h4>
                 <div className="space-y-4 font-sans text-lg">
-                  <button onClick={() => closeAndNavigate('/menu')} className="block hover:text-white transition-colors text-left group">
+                  <button onClick={() => closeAndNavigate('/visit-cafe')} className="block hover:text-white transition-colors text-left group">
                     <span className="inline-block transition-transform group-hover:translate-x-2">Visit the Café</span>
                   </button>
                   {user?.role === 'admin' && (
