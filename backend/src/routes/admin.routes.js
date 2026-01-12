@@ -7,4 +7,6 @@ const router = express.Router();
 
 router.get('/dashboard', authMiddleware, adminMiddleware, adminController.getDashboardStats);
 router.get('/report', authMiddleware, adminMiddleware, adminController.generateReport);
+router.get('/users', authMiddleware, adminMiddleware, adminController.getUsers);
+
 module.exports = router;

@@ -1,16 +1,67 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
 import ArtCard from '../components/art/ArtCard';
 import FilterBar from '../components/art/FilterBar';
 import Sidebar from '@/components/art/Sidebar';
 import FeaturedInterstitial from '../components/art/FeaturedInterstitial';
-import { ARTWORKS } from '../data/artworks';
 import { SortOption } from '../components/art/types';
+
+// Define the interface matching your Backend Data
+interface ArtworkData {
+  _id: string;
+  title: string;
+  artist: any; // Can be object (populated) or string
+  artistName?: string; 
+  description: string;
+  year: string;
+  medium: string;
+  dimensions: string;
+  price: number;
+  status: string;
+  primaryImageUrl: string;
+  hoverImageUrl: string;
+  themeColor?: string;
+}
 
 const Art: React.FC = () => {
   const [sortOption, setSortOption] = useState<SortOption>('Newest');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedMediums, setSelectedMediums] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  
+  // Dynamic State
+  const [artworks, setArtworks] = useState<ArtworkData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || '/api';
+
+  // 1. Fetch Artworks from Backend
+  useEffect(() => {
+    const fetchArtworks = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_BASE_URL}/artworks`);
+        
+        // Map backend _id to frontend expected structure if needed
+        const mappedData = response.data.map((item: any) => ({
+          ...item,
+          id: item._id, // Ensure 'id' exists for components using it
+          // Handle populated artist field vs flat string
+          artist: typeof item.artist === 'object' ? item.artist.displayName : (item.artistName || 'Unknown Artist')
+        }));
+
+        setArtworks(mappedData);
+      } catch (err) {
+        console.error('Failed to load art gallery:', err);
+        setError('Failed to load collection.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArtworks();
+  }, []);
 
   const toggleMedium = (medium: string) => {
     setSelectedMediums(prev =>
@@ -25,7 +76,7 @@ const Art: React.FC = () => {
   };
 
   const filteredArtworks = useMemo(() => {
-    let result = [...ARTWORKS];
+    let result = [...artworks];
 
     if (selectedMediums.length > 0) {
       result = result.filter(art => selectedMediums.includes(art.medium));
@@ -46,15 +97,18 @@ const Art: React.FC = () => {
         result.sort((a, b) => a.title.localeCompare(b.title));
         break;
       default:
-        result.sort((a, b) => b.year - a.year);
+        // Assuming 'Newest' uses createdAt or year
+        // If createdAt is available: new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        result.sort((a, b) => parseInt(b.year) - parseInt(a.year));
         break;
     }
 
     return result;
-  }, [sortOption, selectedMediums, selectedStatuses]);
+  }, [sortOption, selectedMediums, selectedStatuses, artworks]);
 
   const itemsWithInterstitial = useMemo(() => {
     const list = [...filteredArtworks];
+    // Only show interstitial if we have enough items and no filters are active
     if (
       list.length >= 4 &&
       selectedMediums.length === 0 &&
@@ -66,6 +120,9 @@ const Art: React.FC = () => {
     }
     return list;
   }, [filteredArtworks, selectedMediums, selectedStatuses]);
+
+  if (loading) return <div className="min-h-screen bg-cream flex items-center justify-center text-[#3E2723]">Curating collection...</div>;
+  if (error) return <div className="min-h-screen bg-cream flex items-center justify-center text-red-500">{error}</div>;
 
   return (
     <div className="min-h-screen bg-cream font-sans text-[#3E2723] overflow-x-hidden">
@@ -92,11 +149,11 @@ const Art: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-20">
-            {itemsWithInterstitial.map((item) =>
+            {itemsWithInterstitial.map((item, index) =>
               item.isInterstitial ? (
-                <FeaturedInterstitial key="interstitial" />
+                <FeaturedInterstitial key={`interstitial-${index}`} />
               ) : (
-                <ArtCard key={item.id} artwork={item} />
+                <ArtCard key={item._id || item.id} artwork={item} />
               )
             )}
           </div>

@@ -1,23 +1,37 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Link as LinkIcon, Instagram } from 'lucide-react';
 import ArtCard from '../components/art/ArtCard';
-import { artistService, ArtistProfile } from '../services/artistServices';
 import axios from 'axios';
 
+// Define Interface based on your Artist Model
+interface ArtistProfile {
+  _id: string;
+  displayName: string;
+  bio: string;
+  location?: string;
+  profileImageUrl?: string;
+  instagramUrl?: string;
+  websiteUrl?: string;
+  artStyles: string[];
+}
+
 const Artist: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>(); // 'id' can be _id or displayName based on your controller
   const navigate = useNavigate();
   
   const [profile, setProfile] = useState<ArtistProfile | null>(null);
   const [artistWorks, setArtistWorks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Helper to safely get the backend URL for images if they are relative paths
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || '/api';
+
+  // Helper to safely get image URL
   const getImageUrl = (url?: string) => {
     if (!url) return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1000'; // Fallback
     if (url.startsWith('http')) return url;
-    return `${import.meta.env.VITE_BACKEND_API_URL}${url}`; // Adjust if your backend serves static files differently
+    return url;
   };
 
   useEffect(() => {
@@ -26,27 +40,35 @@ const Artist: React.FC = () => {
       
       try {
         setLoading(true);
+        setError('');
         
-        // 1. Fetch Profile (or Fallback if it doesn't exist)
-        const artistData = await artistService.getById(id);
+        // 1. Fetch Artist Profile (Using your artist.controller logic which handles ID or Name)
+        const profileRes = await axios.get(`${API_BASE_URL}/artists/${id}`);
+        const artistData = profileRes.data;
         setProfile(artistData);
 
-        // 2. Fetch All Artworks
-        const API_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:5001/api';
-        const artworksResponse = await axios.get(`${API_URL}/artworks`);
+        // 2. Fetch All Artworks and filter for this artist
+        // (Optimization: In the future, create an endpoint /api/artworks?artist=ID)
+        const artworksRes = await axios.get(`${API_BASE_URL}/artworks`);
         
-        // 3. Filter works by matching the Artist Name
-        const relevantWorks = artworksResponse.data.filter((art: any) => {
-             // Check if art.artist is an object (populated) or string
+        const relevantWorks = artworksRes.data.filter((art: any) => {
+             // Handle both populated object and direct string/ID
              const artArtistName = typeof art.artist === 'object' ? art.artist.displayName : art.artistName || art.artist;
-             
-             // Compare Names (Case insensitive)
-             return artArtistName?.toLowerCase() === artistData.displayName.toLowerCase();
+             const artArtistId = typeof art.artist === 'object' ? art.artist._id : art.artist;
+
+             // Match by ID if possible, otherwise by Name (case insensitive)
+             return (
+               (artistData._id && artArtistId === artistData._id) ||
+               (artArtistName && artArtistName.toLowerCase() === artistData.displayName.toLowerCase())
+             );
         });
 
-        setArtistWorks(relevantWorks);
+        // Map _id to id for components
+        setArtistWorks(relevantWorks.map((w: any) => ({ ...w, id: w._id })));
+
       } catch (error) {
         console.error("Failed to fetch artist data", error);
+        setError('Artist not found');
       } finally {
         setLoading(false);
       }
@@ -56,21 +78,26 @@ const Artist: React.FC = () => {
   }, [id]);
 
   if (loading) {
-    return <div className="min-h-screen bg-cream flex items-center justify-center text-[#3E2723]">Loading...</div>;
+    return <div className="min-h-screen bg-cream flex items-center justify-center text-[#3E2723]">Loading Profile...</div>;
   }
 
-  if (!profile) {
-    return <div className="min-h-screen bg-cream flex items-center justify-center text-[#3E2723]">Artist not found</div>;
+  if (error || !profile) {
+    return (
+      <div className="min-h-screen bg-cream flex flex-col items-center justify-center text-[#3E2723] gap-4">
+        <p className="text-xl font-serif">Artist not found.</p>
+        <button onClick={() => navigate('/art')} className="text-sm underline uppercase tracking-widest">Return to Gallery</button>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-cream font-sans text-[#3E2723] overflow-x-hidden selection:bg-[#3E2723] selection:text-cream">
       
       {/* Navigation Header */}
-      <nav className="fixed top-0 w-full z-50 px-6 py-6 flex justify-between items-center mix-blend-difference text-cream">
+      <nav className="fixed top-0 w-full z-50 px-6 py-6 flex justify-between items-center mix-blend-difference text-cream pointer-events-none">
          <button 
            onClick={() => navigate(-1)} 
-           className="flex items-center gap-3 uppercase text-[10px] font-black tracking-[0.2em] hover:opacity-70 transition-opacity"
+           className="pointer-events-auto flex items-center gap-3 uppercase text-[10px] font-black tracking-[0.2em] hover:opacity-70 transition-opacity"
          >
            <ArrowLeft size={14} /> Back
          </button>
@@ -136,9 +163,9 @@ const Artist: React.FC = () => {
                )}
                
                {/* Styles Tags */}
-               <div className="flex gap-2 ml-4">
-                  {profile.artStyles?.map(style => (
-                    <span key={style} className="px-3 py-1 bg-[#3E2723]/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#3E2723]/70">
+               <div className="flex gap-2 ml-4 flex-wrap">
+                  {profile.artStyles?.map((style, i) => (
+                    <span key={i} className="px-3 py-1 bg-[#3E2723]/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#3E2723]/70">
                       {style}
                     </span>
                   ))}
