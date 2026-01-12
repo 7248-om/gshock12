@@ -1,51 +1,49 @@
-
-import React, { useState, useMemo, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useMemo } from 'react';
 import { COFFEE_MENU } from '../../constants';
 import { MenuCategory, CoffeeItem } from '../../types';
 import { CoffeeCard } from './CoffeeCard';
 
+// Shape of data coming from the Backend (matches the parent fetch)
+export interface BackendMenuItem {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  imageUrl: string;
+  stockStatus: string;
+  tags?: string[];
+}
+
 interface CoffeeMenuProps {
+  items: BackendMenuItem[]; // Receive dynamic items from parent
   onAddToCart: (item: CoffeeItem) => void;
 }
 
-// Backend base URL: set VITE_BACKEND_API_URL in frontend .env; falls back to relative /api
-const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || '/api';
-
-export const CoffeeMenu: React.FC<CoffeeMenuProps> = ({ onAddToCart }) => {
+export const CoffeeMenu: React.FC<CoffeeMenuProps> = ({ items, onAddToCart }) => {
   const [activeCategory, setActiveCategory] = useState<MenuCategory | 'All'>('All');
-  const [menuItems, setMenuItems] = useState<CoffeeItem[]>(COFFEE_MENU);
+  
+  // 1. Map Backend Data to Frontend 'CoffeeItem' Shape
+  const menuItems: CoffeeItem[] = useMemo(() => {
+    // If backend data exists, map it
+    if (items && items.length > 0) {
+      return items.map((p) => ({
+        id: p._id,
+        name: p.name,
+        description: p.description,
+        price: `₹${p.price}`, // Add currency symbol
+        imageUrl: p.imageUrl,
+        tags: p.tags || [],
+        category: p.category as MenuCategory,
+      }));
+    }
+    // Fallback to static constants if backend is empty/loading
+    return COFFEE_MENU;
+  }, [items]);
+
   const categories = Object.values(MenuCategory);
 
-  // Optionally load products from backend and map them into CoffeeItem shape
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/products`);
-        const products = response.data as any[];
-
-        if (Array.isArray(products) && products.length > 0) {
-          const mapped: CoffeeItem[] = products.map((p) => ({
-            id: p._id,
-            name: p.name,
-            description: p.description,
-            price: `₹${p.price}`,
-            imageUrl: p.imageUrl,
-            tags: p.tags || [],
-            category: p.category as MenuCategory,
-          }));
-
-
-          setMenuItems(mapped);
-        }
-      } catch (error) {
-        console.error('Failed to load products from backend, falling back to static menu:', error);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
+  // 2. Filter based on selection
   const filteredMenu = useMemo(() => {
     if (activeCategory === 'All') return menuItems;
     return menuItems.filter(item => item.category === activeCategory);
@@ -59,7 +57,6 @@ export const CoffeeMenu: React.FC<CoffeeMenuProps> = ({ onAddToCart }) => {
           <h1 className="text-6xl md:text-[140px] font-black tracking-tighter leading-none mb-10 font-oswald uppercase select-none text-[#3E2723]">
             MENU
           </h1>
-
         </div>
         
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-12 mt-4 px-2 text-left">
@@ -100,8 +97,8 @@ export const CoffeeMenu: React.FC<CoffeeMenuProps> = ({ onAddToCart }) => {
         {filteredMenu.map((item) => (
           <div key={item.id} className="reveal-up active">
             <CoffeeCard 
-              item={item as any} 
-              onPreOrder={() => onAddToCart(item as any)} 
+              item={item} 
+              onPreOrder={() => onAddToCart(item)} 
             />
           </div>
         ))}

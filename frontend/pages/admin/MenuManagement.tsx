@@ -1,32 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Plus, X, Trash2, MoreVertical, Search, Image as ImageIcon } from 'lucide-react';
-import { MenuItem, Category, CoffeeTag } from '../types';
+import axios from 'axios';
+import { Plus, X, Trash2, MoreVertical, Search, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { MenuItem, Category } from '../types';
 
-interface MenuManagementProps {
-  items: MenuItem[];
-  onAddItem: (item: MenuItem) => Promise<void>;
-  onUpdateItem: (item: MenuItem) => Promise<void>;
-  onDeleteItem?: (id: string) => Promise<void>;
-}
-
-const MenuManagement: React.FC<MenuManagementProps> = ({ 
-  items, 
-  onAddItem, 
-  onUpdateItem, 
-  onDeleteItem 
-}) => {
+const MenuManagement: React.FC = () => {
+  const [items, setItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const { token } = useAuth();
-  const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || '/api';
   const [uploading, setUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  
+  const { token } = useAuth();
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || '/api';
 
-  React.useEffect(() => {
+  const fetchMenu = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${API_BASE_URL}/menu`);
+      setItems(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMenu();
+  }, []);
+
+  useEffect(() => {
     if (editingItem) {
       setUploadedUrl(editingItem.imageUrl || null);
     } else {
@@ -45,56 +53,72 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
     
     try {
       const formData = new FormData(e.currentTarget);
-      let imageUrlVal = uploadedUrl || (formData.get('imageUrl') as string) || '';
+      const imageUrlVal = uploadedUrl || (formData.get('imageUrl') as string) || '';
       
-      if (!imageUrlVal) {
-        setSubmitError('Please upload an image or provide an image URL');
-        setIsSubmitting(false);
-        return;
-      }
-
-      const newItem: MenuItem = {
-        id: editingItem?.id || `menu-${Date.now()}`,
-        name: formData.get('name') as string,
-        description: formData.get('description') as string,
+      const payload = {
+        name: formData.get('name'),
+        description: formData.get('description'),
         price: parseFloat(formData.get('price') as string),
-        category: (formData.get('category') as Category) || Category.COFFEE,
+        category: formData.get('category'),
         imageUrl: imageUrlVal,
-        stockStatus: (formData.get('status') as 'In Stock' | 'Out of Stock') || 'In Stock',
-        tags: [],
+        stockStatus: formData.get('status'),
+        isAvailable: formData.get('status') === 'In Stock'
       };
 
       if (editingItem) {
-        await onUpdateItem(newItem);
+        await axios.put(`${API_BASE_URL}/menu/${editingItem._id || editingItem.id}`, payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
       } else {
-        await onAddItem(newItem);
+        await axios.post(`${API_BASE_URL}/menu`, payload, {
+           headers: { Authorization: `Bearer ${token}` }
+        });
       }
       
+      await fetchMenu();
       setIsModalOpen(false);
       setEditingItem(null);
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Failed to save item');
+    } catch (error: any) {
+      setSubmitError(error.response?.data?.message || 'Failed to save item');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!onDeleteItem) return;
     if (!confirm('Are you sure you want to delete this item?')) return;
-    
     try {
-      setIsSubmitting(true);
-      await onDeleteItem(id);
+      await axios.delete(`${API_BASE_URL}/menu/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchMenu();
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Failed to delete item');
-    } finally {
-      setIsSubmitting(false);
+      alert('Failed to delete item');
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/media/upload`, fd, {
+         headers: { Authorization: `Bearer ${token}` }
+      });
+      setUploadedUrl(res.data.url);
+    } catch (err) {
+      alert('Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (loading) return <div className="p-8 text-center text-coffee-500">Loading menu...</div>;
+
   return (
-    <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500 pt-10">
       <header className="flex justify-between items-center">
         <div>
           <h2 className="text-4xl font-serif font-bold tracking-tight text-coffee-100">The Rabuste Collection</h2>
@@ -109,7 +133,6 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
         </button>
       </header>
 
-      {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row gap-4 items-center bg-coffee-900 p-4 rounded-2xl border border-coffee-800">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-coffee-500" size={18} />
@@ -123,20 +146,20 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
         </div>
       </div>
 
-      {/* Table */}
       <div className="overflow-hidden bg-coffee-900 border border-coffee-800 rounded-3xl">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-coffee-800">
               <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-coffee-500 font-bold">Image</th>
-              <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-coffee-500 font-bold">Product Details</th>
+              <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-coffee-500 font-bold">Details</th>
+              <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-coffee-500 font-bold">Category</th>
               <th className="px-6 py-4 text-[10px] uppercase tracking-widest text-coffee-500 font-bold">Price</th>
               <th className="px-6 py-4"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-coffee-800">
             {filteredItems.map(item => (
-              <tr key={item.id} className="hover:bg-coffee-800/30 transition-colors group">
+              <tr key={item._id || item.id} className="hover:bg-coffee-800/30 transition-colors group">
                 <td className="px-6 py-4">
                   <div className="w-12 h-12 rounded-lg overflow-hidden border border-coffee-800 bg-coffee-950">
                     <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
@@ -148,8 +171,11 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                     <p className="text-xs text-coffee-600 line-clamp-1">{item.description}</p>
                   </div>
                 </td>
+                <td className="px-6 py-4 text-xs text-coffee-500 uppercase tracking-wide">
+                  {item.category}
+                </td>
                 <td className="px-6 py-4 font-serif text-coffee-100">
-                  ${item.price.toFixed(2)}
+                  ₹{item.price.toFixed(2)}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
@@ -159,15 +185,12 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                     >
                       <MoreVertical size={18} />
                     </button>
-                    {onDeleteItem && (
-                      <button 
-                        onClick={() => handleDelete(item.id)}
-                        disabled={isSubmitting}
-                        className="p-2 text-coffee-500 hover:text-red-400 transition-colors disabled:opacity-50"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    )}
+                    <button 
+                      onClick={() => handleDelete(item._id || item.id || '')}
+                      className="p-2 text-coffee-500 hover:text-red-400 transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -176,59 +199,31 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
         </table>
       </div>
 
-      {/* Modal / Slide-over */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-end bg-coffee-950/80 backdrop-blur-sm p-4">
           <div className="w-full max-w-xl h-full bg-coffee-900 border-l border-coffee-800 rounded-3xl overflow-hidden shadow-2xl animate-in slide-in-from-right duration-300">
             <div className="p-8 border-b border-coffee-800 flex justify-between items-center bg-coffee-950/40">
               <h3 className="text-2xl font-serif font-bold text-coffee-100">{editingItem ? 'Refine Offering' : 'New Offering'}</h3>
-              <button 
-                onClick={() => setIsModalOpen(false)} 
-                className="p-2 text-coffee-500 hover:bg-coffee-800 rounded-full"
-                disabled={isSubmitting}
-              >
-                <X size={20} />
-              </button>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 text-coffee-500 hover:bg-coffee-800 rounded-full"><X size={20} /></button>
             </div>
             
             <form onSubmit={handleSave} className="p-8 space-y-6 h-[calc(100%-100px)] overflow-y-auto">
-              {submitError && (
-                <div className="bg-red-900/20 border border-red-800 rounded-xl p-3 text-red-400 text-sm">
-                  {submitError}
-                </div>
-              )}
+              {submitError && <div className="text-red-400 text-sm bg-red-900/20 p-3 rounded">{submitError}</div>}
               
               <div className="grid grid-cols-2 gap-6">
                 <div className="col-span-2">
                   <label className="block text-[10px] uppercase font-bold text-coffee-500 mb-2">Item Name</label>
-                  <input 
-                    name="name"
-                    required
-                    defaultValue={editingItem?.name || ''}
-                    className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none" 
-                  />
+                  <input name="name" required defaultValue={editingItem?.name} className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none" />
                 </div>
                 
                 <div className="col-span-1">
-                  <label className="block text-[10px] uppercase font-bold text-coffee-500 mb-2">Price ($)</label>
-                  <input 
-                    name="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    required
-                    defaultValue={editingItem?.price || ''}
-                    className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none" 
-                  />
+                  <label className="block text-[10px] uppercase font-bold text-coffee-500 mb-2">Price (₹)</label>
+                  <input name="price" type="number" step="0.01" required defaultValue={editingItem?.price} className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none" />
                 </div>
 
                 <div className="col-span-1">
-                  <label className="block text-[10px] uppercase font-bold text-coffee-500 mb-2">Stock Status</label>
-                  <select 
-                    name="status"
-                    defaultValue={editingItem?.stockStatus || 'In Stock'}
-                    className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none"
-                  >
+                  <label className="block text-[10px] uppercase font-bold text-coffee-500 mb-2">Status</label>
+                  <select name="status" defaultValue={editingItem?.stockStatus || 'In Stock'} className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none">
                     <option value="In Stock">In Stock</option>
                     <option value="Out of Stock">Out of Stock</option>
                   </select>
@@ -236,110 +231,36 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
 
                 <div className="col-span-1">
                   <label className="block text-[10px] uppercase font-bold text-coffee-500 mb-2">Category</label>
-                  <select 
-                    name="category"
-                    defaultValue={editingItem?.category || Category.COFFEE}
-                    className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none"
-                  >
-                    <option value={Category.COFFEE}>{Category.COFFEE}</option>
-                    <option value={Category.SAVORY}>Savory Bites</option>
-                    <option value={Category.DESSERT}>Desserts</option>
+                  <select name="category" defaultValue={editingItem?.category || Category.COFFEE} className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none">
+                    <option value="Coffee">Coffee</option>
+                    <option value="Menu">Menu</option>
+                    <option value="Dessert">Dessert</option>
                   </select>
                 </div>
 
                 <div className="col-span-2">
                   <label className="block text-[10px] uppercase font-bold text-coffee-500 mb-2">Description</label>
-                  <textarea 
-                    name="description"
-                    rows={3}
-                    defaultValue={editingItem?.description || ''}
-                    className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none resize-none"
-                  />
+                  <textarea name="description" rows={3} defaultValue={editingItem?.description} className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none resize-none" />
                 </div>
 
                 <div className="col-span-2">
                   <label className="block text-[10px] uppercase font-bold text-coffee-500 mb-2">Image</label>
                   <div className="flex gap-4 items-center">
                     <div className="w-20 h-20 bg-coffee-950 border border-coffee-800 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
-                      {uploadedUrl || editingItem?.imageUrl ? (
-                        <img src={uploadedUrl || editingItem?.imageUrl} alt="preview" className="w-full h-full object-cover" />
-                      ) : (
-                        <ImageIcon className="text-coffee-600" />
-                      )}
+                      {uploadedUrl ? <img src={uploadedUrl} className="w-full h-full object-cover"/> : <ImageIcon className="text-coffee-600" />}
                     </div>
                     <div className="flex-1 space-y-2">
-                      <input
-                        name="imageFile"
-                        type="file"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const f = e.target.files?.[0];
-                          if (!f) return;
-                          try {
-                            setUploading(true);
-                            setSubmitError(null);
-                            const uploadForm = new FormData();
-                            uploadForm.append('file', f);
-                            uploadForm.append('type', f.type.startsWith('video') ? 'video' : 'image');
-
-                            const res = await fetch(`${API_BASE_URL}/media/upload`, {
-                              method: 'POST',
-                              headers: {
-                                Authorization: token ? `Bearer ${token}` : '',
-                              },
-                              body: uploadForm,
-                            });
-
-                            if (!res.ok) {
-                              const err = await res.json().catch(() => ({}));
-                              throw new Error(err.message || `Upload failed: ${res.status}`);
-                            }
-
-                            const body = await res.json();
-                            const imageUrl = body.url || (body.media?.url) || null;
-                            if (!imageUrl) {
-                              throw new Error('No image URL returned from upload');
-                            }
-                            setUploadedUrl(imageUrl);
-                          } catch (err: any) {
-                            console.error('Image upload error:', err);
-                            setSubmitError(err.message || 'Image upload failed');
-                            setUploadedUrl(null);
-                          } finally {
-                            setUploading(false);
-                          }
-                        }}
-                        className="text-coffee-500"
-                      />
-                      <input
-                        name="imageUrl"
-                        type="text"
-                        placeholder="https://... or upload above"
-                        value={uploadedUrl ?? (editingItem?.imageUrl || '')}
-                        onChange={(e) => setUploadedUrl(e.target.value || null)}
-                        className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none h-12"
-                      />
-                      {uploading && <div className="text-xs text-coffee-500">Uploading image…</div>}
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="text-coffee-500 text-xs" />
+                      {uploading && <div className="text-xs text-orange-400">Uploading...</div>}
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="pt-8 flex gap-4 sticky bottom-0 bg-coffee-900 pb-4">
-                <button 
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  disabled={isSubmitting}
-                  className="flex-1 py-4 border border-coffee-800 text-coffee-100 rounded-full text-sm font-bold hover:bg-coffee-800 transition-colors disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 py-4 bg-coffee-100 text-coffee-950 rounded-full text-sm font-bold hover:bg-white transition-colors disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Saving...' : editingItem ? 'Save Changes' : 'Add to Collection'}
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 border border-coffee-800 text-coffee-100 rounded-full text-sm font-bold hover:bg-coffee-800 transition-colors">Cancel</button>
+                <button type="submit" disabled={isSubmitting} className="flex-1 py-4 bg-coffee-100 text-coffee-950 rounded-full text-sm font-bold hover:bg-white transition-colors disabled:opacity-50">
+                  {isSubmitting ? <Loader2 className="animate-spin mx-auto"/> : 'Save Offering'}
                 </button>
               </div>
             </form>
