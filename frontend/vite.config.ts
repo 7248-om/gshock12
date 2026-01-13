@@ -3,21 +3,21 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
+    const env = loadEnv(mode, process.cwd(), ''); // Fixed: Use process.cwd() for better Env loading
     return {
+      // 1. THIS IS THE FIX: Force absolute paths
+      base: '/', 
+      
       server: {
         port: 3000,
         host: '0.0.0.0',
-        // 1. Add the Headers for Google Login (COOP)
         headers: {
             "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
         },
-        // 2. Add the Proxy so /api hits your Backend, not the Frontend
-        // This is only used in development
         ...(mode === 'development' && {
           proxy: {
             '/api': {
-              target: 'http://localhost:5001', // Change this to your actual backend port
+              target: 'http://localhost:5001',
               changeOrigin: true,
               secure: false,
             },
@@ -31,9 +31,7 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, '.'),
-          react: path.resolve(__dirname, 'node_modules/react'),
-          'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+          '@': path.resolve(__dirname, './src'), // Best practice: Point @ to src, not root
         }
       }
     };
