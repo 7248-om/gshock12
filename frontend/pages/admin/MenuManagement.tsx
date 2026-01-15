@@ -233,8 +233,8 @@ const MenuManagement: React.FC = () => {
                   <label className="block text-[10px] uppercase font-bold text-coffee-500 mb-2">Category</label>
                   <select name="category" defaultValue={editingItem?.category || Category.COFFEE} className="w-full bg-coffee-950 border border-coffee-800 rounded-xl px-4 py-3 text-sm text-coffee-100 focus:border-coffee-500 outline-none">
                     <option value="Coffee">Coffee</option>
-                    <option value="Menu">Menu</option>
-                    <option value="Dessert">Dessert</option>
+                    <option value="Savory Bites">Savoury Bites</option>
+                    <option value="Desserts">Dessert</option>
                   </select>
                 </div>
 
