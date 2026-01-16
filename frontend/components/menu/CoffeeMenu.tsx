@@ -3,7 +3,7 @@ import { COFFEE_MENU } from '../../constants';
 import { MenuCategory, CoffeeItem } from '../../types';
 import { CoffeeCard } from './CoffeeCard';
 import SuggestionSection from '../SuggestionSection';
-
+import { SynesthesiaPairing } from './SynesthesiaPairing';
 // Shape of data coming from the Backend
 export interface BackendMenuItem {
   _id: string;
@@ -53,7 +53,9 @@ export const CoffeeMenu: React.FC<CoffeeMenuProps> = ({ items, onAddToCart }) =>
         <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-[140px] font-black tracking-tighter leading-none mb-6 sm:mb-8 md:mb-10 font-oswald uppercase select-none text-[#3E2723]">
           MENU
         </h1>
-
+        <div className="mt-12 pt-12 border-t border-gray-100">
+        <SynesthesiaPairing onAddToCart={onAddToCart} />
+      </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 sm:gap-8 md:gap-12 mt-4 px-2 text-left">
           <div className="max-w-md">
             <h4 className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">
@@ -116,10 +118,7 @@ export const CoffeeMenu: React.FC<CoffeeMenuProps> = ({ items, onAddToCart }) =>
         </div>
       )}
 
-      {/* 🔥 Suggestions at the bottom */}
-      <div className="mt-8 sm:mt-10 md:mt-12 pt-8 sm:pt-10 md:pt-12 border-t border-gray-100">
-        <SuggestionSection />
-      </div>
+      
     </div>
   );
 };

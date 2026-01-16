@@ -90,7 +90,7 @@ const Menu = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-[#3E2723] px-4 text-sm sm:text-base">
+      <div className="min-h-screen flex items-center justify-center text-[#3E2723]">
         Brewing the menu...
       </div>
     );
