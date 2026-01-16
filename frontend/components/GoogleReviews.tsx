@@ -13,9 +13,16 @@ export const GoogleReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
-    axios.get('/api/google-reviews').then(res => {
-      setReviews(res.data.reviews || []);
-    });
+    // ✅ FIX: Use the Environment Variable to find the Backend
+    const BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:5000';
+
+    axios.get(`${BASE_URL}/api/google-reviews`) // <--- Uses full URL now
+      .then(res => {
+        setReviews(res.data.reviews || []);
+      })
+      .catch(err => {
+        console.error("Failed to fetch Google Reviews:", err);
+      });
   }, []);
 
   return (
@@ -39,57 +46,62 @@ export const GoogleReviews = () => {
             scrollbar-hide
           "
         >
-          {reviews.map((r, i) => (
-            <div
-              key={i}
-              className="
-                min-w-[320px] md:min-w-[380px]
-                snap-center
-                rounded-2xl
-                bg-gradient-to-br from-[#3A241D] to-[#24140F]
-                border border-[#D4A373]/30
-                p-8
-                shadow-[0_20px_60px_rgba(0,0,0,0.35)]
-                hover:-translate-y-2
-                hover:shadow-[0_30px_80px_rgba(0,0,0,0.5)]
-                transition-all duration-300
-              "
-            >
-              {/* Stars */}
-              <div className="flex gap-1 mb-2">
-                {Array.from({ length: r.rating }).map((_, i) => (
-                  <span key={i} className="text-[#F59E0B] text-lg">★</span>
-                ))}
-              </div>
+          {reviews.length === 0 ? (
+            <div className="w-full text-center text-[#8A6A4F] italic">Loading reviews...</div>
+          ) : (
+            reviews.map((r, i) => (
+              <div
+                key={i}
+                className="
+                  min-w-[320px] md:min-w-[380px]
+                  snap-center
+                  rounded-2xl
+                  bg-gradient-to-br from-[#3A241D] to-[#24140F]
+                  border border-[#D4A373]/30
+                  p-8
+                  shadow-[0_20px_60px_rgba(0,0,0,0.35)]
+                  hover:-translate-y-2
+                  hover:shadow-[0_30px_80px_rgba(0,0,0,0.5)]
+                  transition-all duration-300
+                "
+              >
+                {/* Stars */}
+                <div className="flex gap-1 mb-2">
+                  {Array.from({ length: r.rating }).map((_, i) => (
+                    <span key={i} className="text-[#F59E0B] text-lg">★</span>
+                  ))}
+                </div>
 
-              {/* Date */}
-              <p className="text-xs text-[#CBB6A6] mb-4">
-                {new Date(r.time * 1000).toLocaleDateString()}
-              </p>
+                {/* Date */}
+                <p className="text-xs text-[#CBB6A6] mb-4">
+                  {new Date(r.time * 1000).toLocaleDateString()}
+                </p>
 
-              {/* Review Text */}
-              <p className="text-sm text-[#E7D7CC] leading-relaxed line-clamp-5">
-                “{r.text}”
-              </p>
+                {/* Review Text */}
+                <p className="text-sm text-[#E7D7CC] leading-relaxed line-clamp-5">
+                  “{r.text}”
+                </p>
 
-              {/* Footer */}
-              <div className="mt-6 pt-6 border-t border-[#D4A373]/20 flex items-center gap-3">
-                <img
-                  src={r.profile_photo_url}
-                  alt={r.author_name}
-                  className="w-10 h-10 rounded-full border border-[#F59E0B]/40"
-                />
-                <div>
-                  <p className="text-[#F59E0B] font-semibold text-sm">
-                    {r.author_name}
-                  </p>
-                  <p className="text-xs text-[#D4A373]">
-                    ✔ Verified Google Reviewer
-                  </p>
+                {/* Footer */}
+                <div className="mt-6 pt-6 border-t border-[#D4A373]/20 flex items-center gap-3">
+                  <img
+                    src={r.profile_photo_url}
+                    alt={r.author_name}
+                    className="w-10 h-10 rounded-full border border-[#F59E0B]/40"
+                    onError={(e) => (e.currentTarget.src = "https://ui-avatars.com/api/?name=" + r.author_name)}
+                  />
+                  <div>
+                    <p className="text-[#F59E0B] font-semibold text-sm">
+                      {r.author_name}
+                    </p>
+                    <p className="text-xs text-[#D4A373]">
+                      ✔ Verified Google Reviewer
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Fade edges for premium look */}
