@@ -18,7 +18,7 @@ const chatRoutes = require('./chat.routes');
 const menuRoutes = require('./menu.routes'); // <--- ADD THIS IMPORT
 const marketingRoutes = require('./marketing.routes');
 const synesthesiaRoutes = require('./synesthesia.routes');
-const googleReviewRoutes = require('./googleReview.routes');
+const googleReviewRoutes = require('./googleReviews.routes');
 const router = express.Router();
 
 // Root API endpoint
