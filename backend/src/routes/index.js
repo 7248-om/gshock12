@@ -18,6 +18,7 @@ const chatRoutes = require('./chat.routes');
 const menuRoutes = require('./menu.routes'); // <--- ADD THIS IMPORT
 const marketingRoutes = require('./marketing.routes');
 const synesthesiaRoutes = require('./synesthesia.routes');
+const googleReviewRoutes = require('./googleReview.routes');
 const router = express.Router();
 
 // Root API endpoint
@@ -47,4 +48,5 @@ router.use('/chat', chatRoutes);
 router.use('/menu', menuRoutes); // <--- ADD THIS LINE
 router.use('/marketing', marketingRoutes);
 router.use('/synesthesia', synesthesiaRoutes);
+router.use('/google-reviews', googleReviewRoutes);
 module.exports = router;

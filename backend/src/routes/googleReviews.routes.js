@@ -6,7 +6,7 @@ const router = express.Router();
 // ======================================================
 // GOOGLE REVIEWS API ROUTE
 // ======================================================
-router.get('/google-reviews', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const placeId = process.env.GOOGLE_PLACE_ID;
     const apiKey = process.env.GOOGLE_API_KEY;
