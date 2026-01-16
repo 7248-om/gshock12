@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, Coffee, Palette, Users, Star, ArrowDown } from 'lucide-react';
+import { ArrowRight, Palette, Users, Star, ArrowDown, MapPin } from 'lucide-react';
 
 const OurStory: React.FC = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -13,7 +13,7 @@ const OurStory: React.FC = () => {
   return (
     <div className="bg-[#FFFCF2] text-[#3E2723] w-full font-sans selection:bg-[#D99A46] selection:text-white overflow-hidden">
       
-      {/* --- HERO SECTION: PARALLAX MANIFESTO --- */}
+      {/* --- HERO SECTION: PARALLAX MANIFESTO & MAP --- */}
       <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
         {/* Parallax Background Image */}
         <div 
@@ -28,7 +28,9 @@ const OurStory: React.FC = () => {
           <div className="absolute inset-0 bg-[#FFFCF2] md:bg-gradient-to-r from-[#FFFCF2] via-[#FFFCF2]/80 to-transparent" />
         </div>
 
-        <div className="relative z-10 container mx-auto px-6 md:px-12 grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative z-10 container mx-auto px-6 md:px-12 grid md:grid-cols-2 gap-12 items-center h-full pt-20">
+          
+          {/* LEFT COLUMN: TEXT */}
           <div className="space-y-8">
             <div className="inline-block border-b border-[#3E2723] pb-1 mb-4">
               <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#D99A46]">The Origin</span>
@@ -41,6 +43,39 @@ const OurStory: React.FC = () => {
               "We stopped asking why Robusta was ignored, and started showing why it shouldn't be."
             </p>
           </div>
+
+          {/* RIGHT COLUMN: MAP */}
+          <div className="hidden md:block relative animate-fade-in-up">
+            {/* Location Label */}
+            <div className="absolute -top-6 left-4 bg-[#3E2723] text-[#FFFCF2] px-4 py-2 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 z-20 shadow-lg">
+              <MapPin size={12} />
+              <span>Flagship Location</span>
+            </div>
+
+            {/* Map Container */}
+            <div className="relative w-full h-[400px] rounded-tl-[3rem] rounded-br-[3rem] overflow-hidden border-4 border-white shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-700 ease-out">
+              <iframe 
+                title="Rabuste Location"
+                width="100%" 
+                height="100%" 
+                id="gmap_canvas" 
+                src="https://maps.google.com/maps?q=Rabuste%20Dimpal%20Row%20House%2C%2015%2C%20Gymkhana%20Rd%2C%20Piplod%2C%20Surat&t=&z=15&ie=UTF8&iwloc=&output=embed" 
+                frameBorder="0" 
+                scrolling="no" 
+                style={{ filter: 'grayscale(20%) contrast(1.1)' }}
+              ></iframe>
+              
+              {/* Overlay Gradient (Optional aesthetic touch) */}
+              <div className="absolute inset-0 pointer-events-none border-[1px] border-[#3E2723]/10 rounded-tl-[3rem] rounded-br-[3rem]"></div>
+            </div>
+
+            {/* Address Caption */}
+            <div className="mt-4 text-right">
+              <p className="text-xs font-bold text-[#3E2723] uppercase tracking-wider">Piplod, Surat</p>
+              <p className="text-[10px] text-[#3E2723]/60 font-serif italic">15, Gymkhana Rd, Dimpal Row House</p>
+            </div>
+          </div>
+
         </div>
 
         {/* Scroll Indicator */}
