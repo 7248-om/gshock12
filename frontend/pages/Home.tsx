@@ -181,7 +181,7 @@ const Home: React.FC = () => {
       /> */}
 
       
-      <SplitSection
+      {/* <SplitSection
         alignment="right"
         mediaUrl="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9"
         mediaType="image"
@@ -190,11 +190,11 @@ const Home: React.FC = () => {
         ctaText="See How AI Fits In"
         ctaLink="#"
         backgroundColor="bg-cream"
-      />
+      /> */}
       <GoogleReviews />
       <SplitSection2
         alignment="center"
-        mediaUrl="https://images.unsplash.com/photo-1521017432531-fbd92d768814"
+        mediaUrl="https://ik.imagekit.io/edqbwva9c/WhatsApp%20Image%202026-01-17%20at%2011.50.33.jpeg"
         mediaType="image"
         title="Built for Growth"
         text="Rabuste is a compact, scalable café model designed for expansion. We’re opening franchise opportunities for partners who believe in bold coffee and meaningful experiences."

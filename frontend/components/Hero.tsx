@@ -63,9 +63,8 @@ const Hero: React.FC = () => {
           }`}
         >
           <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light mb-6 sm:mb-8 leading-relaxed">
-            Bold coffee doesn’t whisper. Rabuste is a cozy, grab-and-go café
-            experience dedicated exclusively to premium Robusta — blending
-            strong flavors, art, and culture into every cup.
+            Rabuste is one of India’s first coffee brands dedicated exclusively to premium Robusta.
+Crafted for bold flavor lovers, we bring high-quality, great-tasting Robusta coffee to a modern grab-and-go café experience - uncompromising, unapologetic, and distinctly Indian.
           </p>
 
           <a
