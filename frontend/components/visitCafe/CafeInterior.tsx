@@ -532,7 +532,12 @@ const TrailingVine: React.FC<{ length: number }> = ({ length }) => {
 const InteractionButton: React.FC<{ position: [number, number, number], label: string, icon?: React.ReactNode, onClick: () => void }> = ({ position, label, icon, onClick }) => (
   <group position={position}>
     <Float speed={2} rotationIntensity={0.05} floatIntensity={0.5}>
-      <Html center distanceFactor={10}>
+      <Html
+        center
+        distanceFactor={10}
+        transform={false}
+        pointerEvents="auto"
+      >
         <button 
           onClick={(e) => { e.stopPropagation(); onClick(); }}
           className="group flex items-center gap-3 bg-[#1c1917] hover:bg-black active:scale-90 transition-all px-6 py-3 rounded-full shadow-2xl border border-amber-900/30 pointer-events-auto cursor-pointer"

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 type PageView = "none" | "menu" | "gallery" | "workshop";
 
 const VisitCafe = () => {
+  const navigate = useNavigate();
   const [controlState, setControlState] = useState<ControlState>({
     forward: false,
     backward: false,
@@ -27,6 +28,7 @@ const VisitCafe = () => {
           controls={controlState}
           onInteract={setActiveInfo}
           onAction={(view) => {
+            console.log("VisitCafe rendered");
             if (view === "menu") navigate("/menu");
             if (view === "gallery") navigate("/art");
             if (view === "workshop") navigate("/workshop");
@@ -35,7 +37,7 @@ const VisitCafe = () => {
       </div>
 
       {/* ================= UI OVERLAY ================= */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-between p-6 md:p-10">
+      <div className="absolute inset-0 z-10 flex flex-col justify-between p-6 md:p-10 pointer-events-none">
         {/* TOP INFO BUBBLE */}
         <div className="flex justify-center">
           {activeInfo && currentView === "none" && (
